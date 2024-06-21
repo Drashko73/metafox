@@ -1,3 +1,8 @@
 from tasks import add
 
-result = add.delay(4, 4)
+def main():
+    result = add.delay(4, 4).get()
+    print(result)
+    
+if __name__ == '__main__':
+    main()
