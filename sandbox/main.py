@@ -1,8 +1,8 @@
-from tasks import add
+from worker import start_automl
 
 def main():
-    result = add.delay(4, 4).get()
-    print(result)
+    model = start_automl.delay("../data/boston_housing/Boston_dataset_Train_data.csv", "medv").get()
+    print(model)
     
 if __name__ == '__main__':
     main()
