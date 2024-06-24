@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from metafox.tasks import start_automl_train
+from metafox.tasks.start_training import start_automl_train
 from metafox.schemas.start_automl_request import StartAutoMLRequest
 
 app = FastAPI()
