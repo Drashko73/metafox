@@ -18,6 +18,9 @@ def start_automl_train(link_to_data: str, target: str):
     model = KNNRegressor()
     model.fit(X_train, y_train)
     
-    sleep(10)   # Simulate a long-running task (10 seconds
+    # store result using redis
+    result = model.get_params()
+    
+    # sleep(10)   # Simulate a long-running task (10 seconds
     
     return {"message": "AutoML task completed.", "model_params": model.get_params()}
