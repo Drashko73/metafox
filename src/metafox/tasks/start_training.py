@@ -2,19 +2,28 @@ import pandas as pd
 
 from metafox.celery import app
 from metafox.ml_models.knn import KNNRegressor
+from metafox.schemas.configure_model import ConfigureModel
 
 @app.task
-def start_automl_train(link_to_data: str, target: str):
+def start_automl_train(config: ConfigureModel) -> dict:
     
     # Load the data
-    data = pd.read_csv(link_to_data)
-    X_train = data.drop(target, axis=1)
-    y_train = data[target]
+    data = pd.read_csv(config["data_source"])
+    X_train = data.drop(config["target_variable"], axis=1)
+    y_train = data[config["target_variable"]]
     
-    # Train the model
-    model = KNNRegressor()
-    model.fit(X_train, y_train)
+    if config["automl_library"] == "tpot":
+        from metafox.automl.tpot_regressor import TPOTRegressorWrapper
+        
+        model = TPOTRegressorWrapper(
+            random_state=config["random_state"],
+            max_time_mins=config["timeout"]
+        )
+        
+        model.fit(X_train, y_train)
+        result = model.get_model_params()
+        
+    else:
+        raise ValueError("Invalid AutoML library specified.")
     
-    result = model.get_params()
-    
-    return {"message": "AutoML task completed.", "model_params": result}
+    return {"message": "AutoML task completed.", "model": result}

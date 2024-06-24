@@ -3,50 +3,41 @@ import requests
 from time import sleep
 
 def main() -> None:
-    """
-    Main function
-    """
-    # Start the AutoML task
-    url = "http://localhost:8000/metafox/automl/start"
-    payload = {
-        "link_to_data": "../data/boston_housing/Boston_dataset_Train_data.csv",
-        "target": "medv"
+    
+    config = {
+        "name" : "Boston Housing",
+        "data_source" : "../data/boston_housing/Boston_dataset_Train_data.csv",
+        "target_variable" : "medv",
+        "model_type" : "regression",
+        "random_state" : 42,
+        "model" : "LinearRegression",
+        "max_iter" : 1000,
+        "timeout" : 1,
+        "automl_library" : "tpot"
     }
     
-    response = requests.post(url, json = payload)   # Send a POST request to the server in order to start the AutoML task
+    # Start the AutoML task
+    url = "http://localhost:8000/metafox/automl/start"
+    response = requests.post(url, json = config)   # Send a POST request to the server in order to start the AutoML task
     
-    if response.status_code == 200:
-        task_id = response.json()["task_id"]
-        print(f"AutoML task started with task ID: {task_id}")
-    else:
-        print(f"Failed to start AutoML task. Status code: {response.status_code}")
-        print(response.text)
-        
-    # Check the status of the task
+    # Check task status
+    task_id = response.json()["task_id"]
     url = f"http://localhost:8000/metafox/automl/task/{task_id}/status"
-    response = requests.get(url)    # Send a GET request to the server in order to check the status of the task
+    response = requests.get(url)   # Send a GET request to the server to get the status of the AutoML task
     
-    if response.status_code == 200:
-        task_status = response.json()["status"]
-        print(f"Task status: {task_status}")
-    else:
-        print(f"Failed to get task status. Status code: {response.status_code}")
-        print(response.text)
-    
-    print("Going to sleep for 4 seconds...")
-    sleep(4)    # Sleep for 4 seconds
-    print("Woke up!")
-    
-    # Get the result of the task
+    while response.json()["status"] != "SUCCESS":
+        if response.json()["status"] == "FAILURE":
+            print("Task failed.")
+            return
+        
+        print("Task is still running. Current status: " + response.json()["status"])
+        sleep(10)   # Wait for 10 seconds before checking the status again
+        response = requests.get(url)
+        
+    # Get the result
     url = f"http://localhost:8000/metafox/automl/task/{task_id}/result"
-    response = requests.get(url)    # Send a GET request to the server in order to get the result of the task
-    
-    if response.status_code == 200:
-        task_result = response.json()["result"]
-        print(f"Task result: {task_result}")
-    else:
-        print(f"Failed to get task result. Status code: {response.status_code}")
-        print(response.text)
+    response = requests.get(url)   # Send a GET request to the server to get the result of the AutoML task
+    print(response.json())
     
 if __name__ == "__main__":
     main()

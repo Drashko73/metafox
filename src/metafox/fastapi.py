@@ -6,6 +6,7 @@ from celery.result import AsyncResult
 from metafox.celery import app as celery_app
 from metafox.tasks.start_training import start_automl_train
 from metafox.schemas.start_automl_request import StartAutoMLRequest
+from metafox.schemas.configure_model import ConfigureModel
 
 app = FastAPI()
 
@@ -18,8 +19,8 @@ app = FastAPI()
 # Response: JSON object with task_id and message
 #
 @app.post("/metafox/automl/start")
-async def start_automl_task(body: StartAutoMLRequest):
-    result = start_automl_train.delay(body.link_to_data, body.target)
+async def start_automl_task(body: ConfigureModel):
+    result = start_automl_train.delay(body.model_dump())
     return {"task_id": result.id, "message": "AutoML task started."}
 
 #
