@@ -3,7 +3,7 @@
 from fastapi import FastAPI
 from celery.result import AsyncResult
 
-from metafox.celery import app as celery_app
+from metafox.metafox_celery import app as celery_app
 from metafox.tasks.start_training import start_automl_train
 from metafox.schemas.start_automl_request import StartAutoMLRequest
 from metafox.schemas.configure_model import ConfigureModel

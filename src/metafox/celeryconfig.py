@@ -10,7 +10,8 @@ imports = [
 result_backend = 'redis://localhost:6379/0'
 
 # Worker settings
-worker_pool = 'solo'
+# Uncomment to run tasks in a single process
+# worker_pool = 'solo'
 
 # Task settings
 task_serializer = 'json'

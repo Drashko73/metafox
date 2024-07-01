@@ -1,7 +1,6 @@
 import pandas as pd
 
-from metafox.celery import app
-from metafox.ml_models.knn import KNNRegressor
+from metafox.metafox_celery import app
 from metafox.schemas.configure_model import ConfigureModel
 
 @app.task
