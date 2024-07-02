@@ -6,7 +6,7 @@ def main() -> None:
     
     config = {
         "name" : "Boston Housing",
-        "data_source" : "../data/boston_housing/Boston_dataset_Train_data.csv",
+        "data_source" : "https://raw.githubusercontent.com/selva86/datasets/master/BostonHousing.csv",
         "target_variable" : "medv",
         "model_type" : "regression",
         "random_state" : 42,
