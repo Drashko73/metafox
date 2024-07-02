@@ -8,7 +8,13 @@ from metafox.tasks.start_training import start_automl_train
 from metafox.schemas.start_automl_request import StartAutoMLRequest
 from metafox.schemas.configure_model import ConfigureModel
 
-app = FastAPI()
+app = FastAPI(
+    title="MetaFOX API", 
+    version="0.1", 
+    description="API for MetaFOX Component",
+    docs_url="/metafox/docs",
+    redoc_url="/metafox/redoc"
+)
 
 #
 # FastAPI routes
