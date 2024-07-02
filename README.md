@@ -35,3 +35,13 @@ Optional: Start Flower for monitoring Celery workers by running the following co
 Once the app and the necessary components are running, you can access the FastAPI endpoint at `http://localhost:8000` and monitor the Celery workers using Flower at `http://localhost:5555`.
 
 Make sure to configure any necessary environment variables or settings before starting the app.
+
+## API Documentation
+
+After starting the FastAPI endpoint, you can access the API documentation by navigating to `http://localhost:8000/metafox/docs`. This endpoint provides a comprehensive overview of all the available API routes, request/response schemas, and example requests.
+
+The API documentation is generated automatically based on the defined endpoints and their corresponding request/response models. It allows developers to easily explore and understand the functionality of the MetaFOX API without having to refer to the source code.
+
+The documentation provides detailed information about each endpoint, including the HTTP methods supported, the expected request payloads, and the structure of the response data. It also includes interactive features such as the ability to make test requests directly from the documentation page.
+
+To access the API documentation, simply open a web browser and enter the URL `http://localhost:8000/metafox/docs` after starting the FastAPI endpoint.
