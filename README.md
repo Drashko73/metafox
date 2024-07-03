@@ -36,6 +36,31 @@ Once the app and the necessary components are running, you can access the FastAP
 
 Make sure to configure any necessary environment variables or settings before starting the app.
 
+## Installing Prerequisites
+
+Before running MetaFOX, you need to install the following prerequisites:
+
+1. Docker: MetaFOX relies on Docker to run RabbitMQ and Redis containers. You can install Docker by following the official installation guide for your operating system.
+
+2. RabbitMQ: RabbitMQ is a message broker that MetaFOX uses for task queuing and communication between components. To install RabbitMQ using Docker, execute the following command:
+
+    ```
+    docker run -d --name rabbitmq -p 5672:5672 rabbitmq
+    ```
+
+    This command will pull the RabbitMQ Docker image and start a container named "rabbitmq" with port 5672 exposed.
+
+3. Redis: Redis is an in-memory data store that MetaFOX uses for caching and storing intermediate results. To install Redis using Docker, execute the following command:
+
+    ```
+    docker run -d --name redis -p 6379:6379 redis
+    ```
+
+    This command will pull the Redis Docker image and start a container named "redis" with port 6379 exposed.
+
+Once you have installed Docker, RabbitMQ, and Redis, you can start them by executing the respective Docker commands mentioned above. Make sure to wait for the containers to start before proceeding with the next steps.
+
+
 ## API Documentation
 
 After starting the FastAPI endpoint, you can access the API documentation by navigating to `http://localhost:8000/metafox/docs`. This endpoint provides a comprehensive overview of all the available API routes, request/response schemas, and example requests.
