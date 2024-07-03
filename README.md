@@ -1,14 +1,19 @@
 # MetaFOX
 
-Advanced automated machine learning (AutoML) component, which will significantly simplify the initial model creation within NEMO META-OS by automating the process of model selection, feature engineering, and hyperparameter tuning. MetaFOX uses the power of automation in machine learning to streamline model development, enhance quality of the models, and democratize AI accessibility. It significantly simplifies the initial model creation for **federated learning (FL)** and **transfer learning (TL)** by automating the process of **model selection**, **feature engineering**, and **hyperparameter 
-tuning**.
+Advanced automated machine learning (AutoML) component, which will significantly simplify the initial model creation within NEMO META-OS by automating the process of model selection, feature engineering, and hyperparameter tuning. MetaFOX uses the power of automation in machine learning to streamline model development, enhance quality of the models, and democratize AI accessibility. It significantly simplifies the initial model creation for **federated learning (FL)** and **transfer learning (TL)** by automating the process of **model selection**, **feature engineering**, and **hyperparameter tuning**.
 
 * **Model Selection**: MetaFOX evaluates numerous machine learning models to find the best starting architecture for the specific problem. It can efficiently sift through many combinations of model types (e.g., linear models, tree-based models, neural networks) to identify a promising starting point for federated learning, or in the case of TL, the most appropriate pre-trained model. It can assess which pre-trained models perform best on tasks like the target task and select the most suitable one.
 * **Feature Engineering**: MetaFOX automatically detects the best transformations and interactions of features that could benefit the model. FL involves disparate data sources, and AutoML can help ensure that the features used in the initial model are robust and generalizable across different datasets. Although transfer learning often relies on features learned from the source task, AutoML can help in identifying and constructing additional features from the target dataset that can be beneficial when added to the model.
 * **Hyperparameter Optimization**: AutoML tools optimize hyperparameters much more efficiently than manual experimentation. In the case of FL, it can help ensure that the initial model is as performant as possible before it is sent out to nodes for local training. In the case of TL, AutoML will automatically tune hyperparameters for the transfer learning process, which can be crucial since the optimal settings for the source task may not be ideal for the target task.
 * **Architecture Adjustments**: In TL, MetaFOX can determine the best architecture adjustments needed when adapting the pre-trained model to the new task, such as adding or removing layers, or adjusting the size of layers to suit the new data and task.
 
-## Getting Started
+## Table of Contents
+- [Getting Started](#getting-started)
+- [Installing Prerequisites](#installing-prerequisites)
+- [API Documentation](#api-documentation)
+- [Environment Variables](#environment-variables)
+
+## Getting Started <a name="getting-started"></a>
 
 To start off, follow these steps:
 
@@ -36,7 +41,9 @@ Once the app and the necessary components are running, you can access the FastAP
 
 Make sure to configure any necessary environment variables or settings before starting the app.
 
-## Installing Prerequisites
+[Back to Table of Contents](#table-of-contents)
+
+## Installing Prerequisites <a name="installing-prerequisites"></a>
 
 Before running MetaFOX, you need to install the following prerequisites:
 
@@ -60,8 +67,9 @@ Before running MetaFOX, you need to install the following prerequisites:
 
 Once you have installed Docker, RabbitMQ, and Redis, you can start them by executing the respective Docker commands mentioned above. Make sure to wait for the containers to start before proceeding with the next steps.
 
+[Back to Table of Contents](#table-of-contents)
 
-## API Documentation
+## API Documentation <a name="api-documentation"></a>
 
 After starting the FastAPI endpoint, you can access the API documentation by navigating to `http://localhost:8000/metafox/docs`. This endpoint provides a comprehensive overview of all the available API routes, request/response schemas, and example requests.
 
@@ -71,7 +79,10 @@ The documentation provides detailed information about each endpoint, including t
 
 To access the API documentation, simply open a web browser and enter the URL `http://localhost:8000/metafox/docs` after starting the FastAPI endpoint.
 
-## Environment Variables
+[Back to Table of Contents](#table-of-contents)
+
+## Environment Variables <a name="environment-variables"></a>
+
 MetaFOX uses environment variables for configuration. To set up the necessary environment variables, create a `.env` file in the root directory of the project. Here is an example of how the `.env` file should be structured:
 
 ```
@@ -93,3 +104,6 @@ WORKER_CONCURRENCY=12
 ```
 
 Make sure to replace the values with your own configuration settings. The `.env` file should not be committed to version control to keep sensitive information secure.
+
+[Back to Table of Contents](#table-of-contents)
+
