@@ -70,3 +70,26 @@ The API documentation is generated automatically based on the defined endpoints 
 The documentation provides detailed information about each endpoint, including the HTTP methods supported, the expected request payloads, and the structure of the response data. It also includes interactive features such as the ability to make test requests directly from the documentation page.
 
 To access the API documentation, simply open a web browser and enter the URL `http://localhost:8000/metafox/docs` after starting the FastAPI endpoint.
+
+## Environment Variables
+MetaFOX uses environment variables for configuration. To set up the necessary environment variables, create a `.env` file in the root directory of the project. Here is an example of how the `.env` file should be structured:
+
+```
+API_NAME=MetaFOX
+API_VERSION=1.0.0
+API_VERSIONING_PREFIX=v1
+API_HOST=localhost
+API_PORT=8000
+API_PREFIX=/metafox
+API_DOCS_URL=/metafox/docs
+API_REDOC_URL=/metafox/redoc
+
+
+BROKER_URL=pyamqp://guest@localhost:5672//
+RESULT_BACKEND=redis://localhost:6379/0
+TASK_SERIALIZER=json
+RESULT_SERIALIZER=json
+WORKER_CONCURRENCY=12
+```
+
+Make sure to replace the values with your own configuration settings. The `.env` file should not be committed to version control to keep sensitive information secure.
