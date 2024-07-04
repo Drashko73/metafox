@@ -1,6 +1,6 @@
 import pandas as pd
 
-from metafox.metafox_celery import app
+from metafox.worker.metafox_celery import app
 from metafox.schemas.configure_model import ConfigureModel
 
 @app.task

@@ -17,12 +17,12 @@ def main() -> None:
     }
     
     # Start the AutoML task
-    url = "http://localhost:8000/metafox/automl/start"
+    url = "http://localhost:8000/metafox/v1/automl/start"
     response = requests.post(url, json = config)   # Send a POST request to the server in order to start the AutoML task
     
     # Check task status
     task_id = response.json()["task_id"]
-    url = f"http://localhost:8000/metafox/automl/task/{task_id}/status"
+    url = f"http://localhost:8000/metafox/v1/automl/task/{task_id}/status"
     response = requests.get(url)   # Send a GET request to the server to get the status of the AutoML task
     
     while response.json()["status"] != "SUCCESS":
@@ -35,7 +35,7 @@ def main() -> None:
         response = requests.get(url)
         
     # Get the result
-    url = f"http://localhost:8000/metafox/automl/task/{task_id}/result"
+    url = f"http://localhost:8000/metafox/v1/automl/task/{task_id}/result"
     response = requests.get(url)   # Send a GET request to the server to get the result of the AutoML task
     print(response.json())
     
