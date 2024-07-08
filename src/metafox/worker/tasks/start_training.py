@@ -1,10 +1,10 @@
 import pandas as pd
 
 from metafox.worker.metafox_celery import app
-from metafox.schemas.configure_model import ConfigureModel
+from metafox.schemas.automl_job import AutoMLJob
 
 @app.task
-def start_automl_train(config: ConfigureModel) -> dict:
+def start_automl_train(config: AutoMLJob) -> dict:
     
     # Load the data
     data = pd.read_csv(config["data_source"])

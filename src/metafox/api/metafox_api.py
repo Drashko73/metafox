@@ -5,8 +5,7 @@ from dotenv import load_dotenv
 from fastapi import FastAPI
 from celery.result import AsyncResult
 
-from metafox.schemas.configure_model import ConfigureModel
-from metafox.schemas.create_automl_job import CreateAutoMLJob
+from metafox.schemas.automl_job import AutoMLJob
 
 from metafox.worker.metafox_celery import app as celery_app
 from metafox.worker.tasks.start_training import start_automl_train
@@ -34,14 +33,15 @@ logger = Logger("API")
 redis_client = RedisClient()
 
 @app.post(f"{api_prefix}/{versioning}/automl/job/create")
-async def create_automl_job(body: CreateAutoMLJob) -> dict:
-    job_details = body.model_dump().__str__()
-    logger.info("Saving job details to Redis.")
+async def create_automl_job(body: AutoMLJob) -> dict:
+    job_details = body.__str__()
     
+    logger.info("Generating unique job ID...")
     id = redis_client.generate_unique_job_key("AUTOML_JOB")
     logger.info(f"Generated unique job ID: {id}")
     
     try:
+        logger.info("Saving job details to Redis...")
         redis_client.set(id, job_details)
         logger.info("Job details saved successfully.")
     except Exception as e:
@@ -54,6 +54,7 @@ async def create_automl_job(body: CreateAutoMLJob) -> dict:
 @app.post(f"{api_prefix}/{versioning}/automl/job/start")
 async def start_automl_task(body: str) -> dict:
     try:
+        logger.info("Retrieving job details from Redis...")
         job_details = redis_client.get(body)
         logger.info("Retrieved job details from Redis.")
     except Exception as e:
