@@ -102,6 +102,10 @@ RESULT_BACKEND=redis://localhost:6379/0
 TASK_SERIALIZER=json
 RESULT_SERIALIZER=json
 WORKER_CONCURRENCY=12
+
+REDIS_HOST=localhost
+REDIS_PORT=6379
+REDIS_DB=0
 ```
 
 Make sure to replace the values with your own configuration settings. The `.env` file should not be committed to version control to keep sensitive information secure.
