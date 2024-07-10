@@ -5,39 +5,57 @@ from time import sleep
 def main() -> None:
     
     config = {
-        "name" : "Boston Housing",
-        "data_source" : "https://raw.githubusercontent.com/Drashko73/datasets/master/boston_housing/housing.csv",
-        "target_variable" : "medv",
-        "model_type" : "regression",
-        "random_state" : 42,
-        "model" : "LinearRegression",
-        "max_iter" : 1000,
-        "timeout" : 1,
-        "automl_library" : "tpot"
+        "job_name": "Boston Housing",
+        "data_source": "https://raw.githubusercontent.com/Drashko73/datasets/master/boston_housing/housing.csv",
+        "target_variable": "medv",
+        "problem_type": "regression",
+        "metrics": [],
+        "random_state": 42,
+        "model": "",
+        "max_iterations": 1000,
+        "timeout": 1,
+        "automl_library": "tpot"
     }
     
-    # Start the AutoML task
-    url = "http://localhost:8000/metafox/v1/automl/start"
-    response = requests.post(url, json = config)   # Send a POST request to the server in order to start the AutoML task
+    # Create an AutoML job
+    url = "http://localhost:8000/metafox/api/v1/automl/job/create"
+    response = requests.post(url, json = config)
     
-    # Check task status
-    task_id = response.json()["task_id"]
-    url = f"http://localhost:8000/metafox/v1/automl/task/{task_id}/status"
-    response = requests.get(url)   # Send a GET request to the server to get the status of the AutoML task
+    job_id = response.json()["job_id"]
+    if job_id == None:
+        print("Job creation failed")
+        return
     
-    while response.json()["status"] != "SUCCESS":
-        if response.json()["status"] == "FAILURE":
+    # Start the AutoML job
+    body = {
+        "job_id": job_id
+    }
+    url = "http://localhost:8000/metafox/api/v1/automl/job/start"
+    response1 = requests.post(url, json = body)
+    
+    celery_job_id = response1.json()["job_id"]
+    if celery_job_id == None:
+        print("Job start failed")
+        return
+    
+    # Retrieve the status of the AutoML job until it is finished or failed
+    url = f"http://localhost:8000/metafox/api/v1/automl/job/{celery_job_id}/status"
+    response2 = requests.get(url)
+    
+    while response2.json()["status"] != "SUCCESS":
+        if response2.json()["status"] == "FAILURE":
             print("Task failed.")
             return
         
-        print("Task is still running. Current status: " + response.json()["status"])
-        sleep(10)   # Wait for 10 seconds before checking the status again
-        response = requests.get(url)
-        
-    # Get the result
-    url = f"http://localhost:8000/metafox/v1/automl/task/{task_id}/result"
-    response = requests.get(url)   # Send a GET request to the server to get the result of the AutoML task
-    print(response.json())
+        print("Task is still running. Current status: " + response2.json()["status"])
+        sleep(10)
+        response2 = requests.get(url)
+    
+    # Retrieve the result of the AutoML job
+    url = f"http://localhost:8000/metafox/api/v1/automl/job/{celery_job_id}/result"
+    response3 = requests.get(url)
+    
+    print(response3.json())
     
 if __name__ == "__main__":
     main()

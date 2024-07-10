@@ -55,13 +55,13 @@ To start off, follow these steps:
 
 3. Start the FastAPI endpoint by running the following command from the **src** directory:
     ```
-    uvicorn metafox.api.metafox_api:app --reload
+    python3 -m metafox.app.app
     ```
 
 Optional: Start Flower for monitoring Celery workers by running the following command from the **src** directory:
-    ```
-    celery -A metafox.worker.metafox_celery flower --port=5555
-    ```
+```
+celery -A metafox.worker.metafox_celery flower --port=5555
+```
 
 Once the app and the necessary components are running, you can access the FastAPI endpoint at `http://localhost:8000` and monitor the Celery workers using Flower at `http://localhost:5555`.
 
@@ -89,7 +89,6 @@ MetaFOX uses environment variables for configuration. To set up the necessary en
 ```
 API_NAME=MetaFOX
 API_VERSION=1.0.0
-API_VERSIONING_PREFIX=v1
 API_HOST=localhost
 API_PORT=8000
 API_PREFIX=/metafox

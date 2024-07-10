@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Union
 from pydantic import BaseModel
 
 class AutoMLJob(BaseModel):
@@ -21,11 +21,11 @@ class AutoMLJob(BaseModel):
     target_variable: str
     problem_type: str
     metrics: List[str]
-    random_state: int
-    model: str
-    max_iterations: int
-    timeout: int
-    automl_library: str
+    random_state: Union[int, None]
+    model: Union[str, None]
+    max_iterations: Union[int, None]
+    timeout: Union[int, None]
+    automl_library: Union[str, None]
     
     def model_dump(self) -> dict:
         """
