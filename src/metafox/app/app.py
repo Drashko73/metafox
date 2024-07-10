@@ -2,7 +2,7 @@ import os
 
 from dotenv import load_dotenv
 from fastapi import FastAPI
-from metafox.app.api.v1.routers import automl_router
+from metafox.app.api.v1.routers import automl_router as v1_router
 
 load_dotenv()
 
@@ -18,7 +18,7 @@ api_prefix = os.getenv("API_PREFIX", "/metafox/api")
 host = os.getenv("API_HOST", "localhost")
 port = os.getenv("API_PORT", 8000)
 
-app.include_router(automl_router.router, prefix=f"{api_prefix}/v1")
+app.include_router(v1_router.router, prefix=f"{api_prefix}/v1")
 
 if __name__ == "__main__":
     import uvicorn
