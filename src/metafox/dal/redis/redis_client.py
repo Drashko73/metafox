@@ -4,8 +4,9 @@ import uuid
 from redis import Redis
 from datetime import datetime
 from dotenv import load_dotenv
+from metafox.dal.idatastore import IDataStore
 
-class RedisClient:
+class RedisClient (IDataStore):
     def __init__(self) -> None:
         load_dotenv()
         self.redis = Redis(
@@ -66,22 +67,7 @@ class RedisClient:
                 self.redis.delete(key)
             
             raise Exception(f"Key {key} does not exist.")
-        
-    def keys(self) -> list:
-        """
-        Returns a list of all keys in the Redis database.
-
-        :return: A list of keys.
-        :rtype: list
-        """
-        return self.redis.keys()
-    
-    def flush(self) -> None:
-        """
-        Flushes all keys from the Redis database.
-        """
-        self.redis.flushall()
-    
+            
     def generate_unique_job_key(self, prefix: str) -> str:
         """
         Generates a unique job key with a given prefix, a UUID, and a timestamp.
@@ -93,7 +79,6 @@ class RedisClient:
         timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
         return f"{prefix}:{unique_id}:{timestamp}"
 
-        
     def __del__(self) -> None:
         print("Redis client destroyed.")
         self.redis.close()
