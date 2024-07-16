@@ -1,10 +1,10 @@
 from fastapi import APIRouter
 
-from metafox.schemas.automl_job import AutoMLJob
-from metafox.schemas.requests.start_automl_job import StartAutoMLJob
-from metafox.app.api.v1.controllers.automl_job_controller import AutoMLJobController
-from metafox.dal.redis.redis_client import RedisClient
-from metafox.dal.inmemory.inmemory_data_store import InMemoryDataStore
+from metafox_shared.models.automl_job import AutoMLJob
+from metafox_shared.requests.start_automl_job import StartAutoMLJob
+from metafox_api.v1.controllers.automl_job_controller import AutoMLJobController
+from metafox_shared.dal.redis.redis_client import RedisClient
+from metafox_shared.dal.inmemory.inmemory_data_store import InMemoryDataStore
 
 router = APIRouter()
 data_store = RedisClient()

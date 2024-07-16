@@ -2,7 +2,7 @@ import os
 
 from dotenv import load_dotenv
 from fastapi import FastAPI
-from metafox.app.api.v1.routers import automl_router as v1_router
+from metafox_api.v1.routers import automl_router as v1_router
 
 load_dotenv()
 

@@ -11,7 +11,7 @@ class AutoMLJob(BaseModel):
         target_variable (str): The target variable for the job.
         problem_type (str): The type of problem to be solved.
         metrics (List[str]): The evaluation metrics for the job.
-        random_seed (int): The random seed for reproducibility.
+        random_state (int): The random state for reproducibility.
         model (str): The model to be used for the job.
         max_iterations (int): The maximum number of iterations for the job.
         timeout (int): The timeout for the job.

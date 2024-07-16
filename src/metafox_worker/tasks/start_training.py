@@ -1,10 +1,9 @@
 import pandas as pd
 
-from metafox.worker.metafox_celery import app
-from metafox.schemas.automl_job import AutoMLJob
+from metafox_worker.main import app
 
 @app.task
-def start_automl_train(config: AutoMLJob) -> dict:
+def start_automl_train(config: object) -> dict:
     
     # Load the data
     data = pd.read_csv(config["data_source"])
@@ -12,7 +11,7 @@ def start_automl_train(config: AutoMLJob) -> dict:
     y_train = data[config["target_variable"]]
     
     if config["automl_library"] == "tpot":
-        from metafox.automl.tpot_regressor import TPOTRegressorWrapper
+        from metafox_worker.automl.tpot_regressor import TPOTRegressorWrapper
         
         model = TPOTRegressorWrapper(
             random_state=config["random_state"],

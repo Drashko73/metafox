@@ -4,7 +4,7 @@ app = Celery(
     'metafox'
 )
 
-app.config_from_object('metafox.worker.celeryconfig')
+app.config_from_object('metafox_worker.celeryconfig')
 
 if __name__ == "__main__":
     app.start()

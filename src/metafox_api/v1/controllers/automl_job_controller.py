@@ -1,8 +1,8 @@
-from metafox.schemas.automl_job import AutoMLJob
-from metafox.schemas.requests.start_automl_job import StartAutoMLJob
-from metafox.app.api.v1.controllers.base_controller import BaseController
-from metafox.worker.tasks.start_training import start_automl_train
-from metafox.dal.idatastore import IDataStore
+from metafox_shared.models.automl_job import AutoMLJob
+from metafox_shared.requests.start_automl_job import StartAutoMLJob
+from metafox_api.v1.controllers.base_controller import BaseController
+from metafox_worker.tasks.start_training import start_automl_train
+from metafox_shared.dal.idatastore import IDataStore
 
 class AutoMLJobController(BaseController):
     

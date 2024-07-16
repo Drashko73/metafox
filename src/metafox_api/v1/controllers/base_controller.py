@@ -1,4 +1,4 @@
-from metafox.dal.idatastore import IDataStore
+from metafox_shared.dal.idatastore import IDataStore
 
 class BaseController:
     
