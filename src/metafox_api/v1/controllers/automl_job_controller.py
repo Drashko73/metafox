@@ -1,7 +1,6 @@
 from metafox_shared.models.automl_job import AutoMLJob
 from metafox_shared.requests.start_automl_job import StartAutoMLJob
 from metafox_api.v1.controllers.base_controller import BaseController
-from metafox_worker.tasks.start_training import start_automl_train
 from metafox_shared.dal.idatastore import IDataStore
 
 class AutoMLJobController(BaseController):
@@ -29,15 +28,15 @@ class AutoMLJobController(BaseController):
         
         job_details = eval(job_details)
         
-        result = start_automl_train.delay(job_details)
+        result = self.celery.send_task('metafox_worker.tasks.start_training.start_automl_train', [job_details])
         return {"message": "AutoML task started.", "job_id": result.id}
     
     def retreive_job_status(self, body: str) -> dict:
-        job = start_automl_train.AsyncResult(body)
+        job = self.celery.AsyncResult(body)
         return {"job_id": job.id, "status": job.status}
     
     def retrieve_job_result(self, body: str) -> dict:
-        res = start_automl_train.AsyncResult(body)
+        res = self.celery.AsyncResult(body)
         if res.ready():
             return {"job_id": body, "result": res.get()}
         else:
