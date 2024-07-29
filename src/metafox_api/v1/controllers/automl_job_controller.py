@@ -2,6 +2,7 @@ from metafox_shared.models.automl_job import AutoMLJob
 from metafox_shared.requests.start_automl_job import StartAutoMLJob
 from metafox_api.v1.controllers.base_controller import BaseController
 from metafox_shared.dal.idatastore import IDataStore
+from metafox_api.constants import *
 
 class AutoMLJobController(BaseController):
     
@@ -19,7 +20,7 @@ class AutoMLJobController(BaseController):
             return {"message": "Error saving job details.", "job_id": None}
         
         try:
-            self.data_store.set("job_status_" + id, "not_started")
+            self.data_store.set(CELERY_KEY_PREFIX + id, NOT_STARTED)
         except Exception as e:
             return {"message": "Error saving job status.", "job_id": None}
         
@@ -36,7 +37,7 @@ class AutoMLJobController(BaseController):
         result = self.celery.send_task('metafox_worker.tasks.start_training.start_automl_train', [job_details])
         
         try:
-            self.data_store.update("job_status_" + body.job_id, result.id)
+            self.data_store.update(CELERY_KEY_PREFIX + body.job_id, result.id)
         except Exception as e:
             return {"message": "Error saving job status.", "job_id": None}
         
@@ -44,24 +45,24 @@ class AutoMLJobController(BaseController):
     
     def retreive_job_status(self, body: str) -> dict:
         try:
-            status = self.data_store.get("job_status_" + body)
+            status = self.data_store.get(CELERY_KEY_PREFIX + body)
         except Exception as e:
             return {"message": "Error retrieving job status.", "job_id": None}
         
-        if status == "not_started":
-            return {"message": "Job not started yet.", "job_id": body.job_id, "status": status}
+        if status == NOT_STARTED:
+            return {"message": "Job not started yet.", "job_id": body, "status": status}
         
         job = self.celery.AsyncResult(status)
         return {"job_id": job.id, "status": job.status}
     
     def retrieve_job_result(self, body: str) -> dict:
         try:
-            status = self.data_store.get("job_status_" + body)
+            status = self.data_store.get(CELERY_KEY_PREFIX + body)
         except Exception as e:
             return {"message": "Error retrieving job status.", "job_id": None}
         
-        if status == "not_started":
-            return {"message": "Job not started yet.", "job_id": body.job_id, "status": status}
+        if status == NOT_STARTED:
+            return {"message": "Job not started yet.", "job_id": body, "status": status}
         
         res = self.celery.AsyncResult(status)
         if res.ready():
