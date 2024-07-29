@@ -17,67 +17,86 @@ class RedisClient (IDataStore):
         )
         
     def set(self, key: str, value: str) -> None:
-            """
-            Set the value of a key in Redis.
+        """
+        Set the value of a key in Redis.
 
-            Args:
-                key (str): The key to set.
-                value (str): The value to set.
+        Args:
+            key (str): The key to set.
+            value (str): The value to set.
 
-            Raises:
-                Exception: If the key already exists in Redis.
+        Raises:
+            Exception: If the key already exists in Redis.
 
-            Returns:
-                None
-            """
-            if self.redis.exists(key):
-                raise Exception(f"Key {key} already exists.")
-            
-            self.redis.set(key, value)
+        Returns:
+            None
+        """
+        if self.redis.exists(key):
+            raise Exception(f"Key {key} already exists.")
+        
+        self.redis.set(key, value)
         
     def get(self, key: str) -> str:
-            """
-            Retrieve the value associated with the given key from Redis.
+        """
+        Retrieve the value associated with the given key from Redis.
 
-            Args:
-                key (str): The key to retrieve the value for.
+        Args:
+            key (str): The key to retrieve the value for.
 
-            Returns:
-                str: The value associated with the given key.
+        Returns:
+            str: The value associated with the given key.
 
-            Raises:
-                Exception: If the key does not exist in Redis.
-            """
-            if self.redis.exists(key):
-                return self.redis.get(key)
-            
-            raise Exception(f"Key {key} does not exist.")
+        Raises:
+            Exception: If the key does not exist in Redis.
+        """
+        if self.redis.exists(key):
+            return self.redis.get(key)
+        
+        raise Exception(f"Key {key} does not exist.")
+        
+    def update(self, key: str, value: str) -> None:
+        """
+        Updates the value of a key in Redis.
+
+        If the key already exists, it is deleted and then set to the new value.
+        If the key does not exist, it is simply set to the new value.
+
+        Args:
+            key (str): The key to update.
+            value (str): The new value to set.
+
+        Returns:
+            None
+        """
+        if self.redis.exists(key):
+            self.redis.delete(key)
+            self.redis.set(key, value)
+        else:
+            self.redis.set(key, value)
     
     def delete(self, key: str) -> None:
-            """
-            Deletes a key from the Redis database.
+        """
+        Deletes a key from the Redis database.
 
-            Args:
-                key (str): The key to be deleted.
+        Args:
+            key (str): The key to be deleted.
 
-            Raises:
-                Exception: If the key does not exist in the database.
-            """
-            if self.redis.exists(key):
-                self.redis.delete(key)
+        Raises:
+            Exception: If the key does not exist in the database.
+        """
+        if self.redis.exists(key):
+            self.redis.delete(key)
+        
+        raise Exception(f"Key {key} does not exist.")
             
-            raise Exception(f"Key {key} does not exist.")
-            
-    def generate_unique_job_key(self, prefix: str) -> str:
+    def generate_unique_job_key(self) -> str:
         """
         Generates a unique job key with a given prefix, a UUID, and a timestamp.
         
-        :param prefix: A string prefix to identify the job type.
         :return: A unique job key as a string.
         """
         unique_id = uuid.uuid4()
         timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
-        return f"{prefix}:{unique_id}:{timestamp}"
+        return f"{unique_id}:{timestamp}"
 
     def __del__(self) -> None:
         print("Redis client destroyed.")

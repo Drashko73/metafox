@@ -11,12 +11,17 @@ class AutoMLJobController(BaseController):
     def create_automl_job(self, body: AutoMLJob) -> dict:
         job_details = body.__str__()
         
-        id = self.data_store.generate_unique_job_key("AUTOML_JOB")
+        id = self.data_store.generate_unique_job_key()
         
         try:
             self.data_store.set(id, job_details)
         except Exception as e:
             return {"message": "Error saving job details.", "job_id": None}
+        
+        try:
+            self.data_store.set("job_status_" + id, "not_started")
+        except Exception as e:
+            return {"message": "Error saving job status.", "job_id": None}
         
         return {"message": "Job details saved successfully.", "job_id": id}
     
@@ -29,14 +34,36 @@ class AutoMLJobController(BaseController):
         job_details = eval(job_details)
         
         result = self.celery.send_task('metafox_worker.tasks.start_training.start_automl_train', [job_details])
+        
+        try:
+            self.data_store.update("job_status_" + body.job_id, result.id)
+        except Exception as e:
+            return {"message": "Error saving job status.", "job_id": None}
+        
         return {"message": "AutoML task started.", "job_id": result.id}
     
     def retreive_job_status(self, body: str) -> dict:
-        job = self.celery.AsyncResult(body)
+        try:
+            status = self.data_store.get("job_status_" + body)
+        except Exception as e:
+            return {"message": "Error retrieving job status.", "job_id": None}
+        
+        if status == "not_started":
+            return {"message": "Job not started yet.", "job_id": body.job_id, "status": status}
+        
+        job = self.celery.AsyncResult(status)
         return {"job_id": job.id, "status": job.status}
     
     def retrieve_job_result(self, body: str) -> dict:
-        res = self.celery.AsyncResult(body)
+        try:
+            status = self.data_store.get("job_status_" + body)
+        except Exception as e:
+            return {"message": "Error retrieving job status.", "job_id": None}
+        
+        if status == "not_started":
+            return {"message": "Job not started yet.", "job_id": body.job_id, "status": status}
+        
+        res = self.celery.AsyncResult(status)
         if res.ready():
             return {"job_id": body, "result": res.get()}
         else:
