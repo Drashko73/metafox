@@ -2,7 +2,7 @@ from fastapi import APIRouter
 
 from metafox_shared.models.automl_job import AutoMLJob
 from metafox_shared.requests.start_automl_job import StartAutoMLJob
-from metafox_api.v1.controllers.automl_job_controller import AutoMLJobController
+from metafox_api.tpot.controllers.automl_job_controller import AutoMLJobController
 from metafox_shared.dal.redis.redis_client import RedisClient
 
 router = APIRouter()
@@ -11,7 +11,7 @@ job_controller = AutoMLJobController(data_store)
 
 @router.post(
     path="/automl/job/create", 
-    tags=["MetaFOX API v1"],
+    tags=["MetaFOX API tpot"],
     summary="Post method for creating an AutoML job",
     description="Create an AutoML job",
     deprecated=False,
@@ -22,7 +22,7 @@ async def create_automl_job(body: AutoMLJob) -> dict:
 
 @router.post(
     path="/automl/job/start", 
-    tags=["MetaFOX API v1"],
+    tags=["MetaFOX API tpot"],
     summary="Post method for starting an AutoML job",
     description="Start an AutoML job",
     deprecated=False,
@@ -33,7 +33,7 @@ async def start_automl_job(body: StartAutoMLJob) -> dict:
 
 @router.get(
     path="/automl/job/{job_id}/status", 
-    tags=["MetaFOX API v1"],
+    tags=["MetaFOX API tpot"],
     summary="Get method for retrieving the status of an AutoML job",
     description="Retrieve the status of an AutoML job",
     deprecated=False,
@@ -44,7 +44,7 @@ async def retrieve_job_status(job_id: str) -> dict:
 
 @router.get(
     path="/automl/job/{job_id}/result", 
-    tags=["MetaFOX API v1"],
+    tags=["MetaFOX API tpot"],
     summary="Get method for retrieving the result of an AutoML job",
     description="Retrieve the result of an AutoML job",
     deprecated=False,

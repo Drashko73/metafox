@@ -1,6 +1,6 @@
 from metafox_shared.models.automl_job import AutoMLJob
 from metafox_shared.requests.start_automl_job import StartAutoMLJob
-from metafox_api.v1.controllers.base_controller import BaseController
+from metafox_api.tpot.controllers.base_controller import BaseController
 from metafox_shared.dal.idatastore import IDataStore
 from metafox_api.constants import *
 
