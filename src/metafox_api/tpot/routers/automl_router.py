@@ -32,23 +32,23 @@ async def start_automl_job(body: StartAutoMLJob) -> dict:
     return job_controller.start_automl_job(body)
 
 @router.get(
-    path="/automl/job/{job_id}/status", 
+    path="/automl/job/{automl_job_id}/status", 
     tags=["MetaFOX API tpot"],
     summary="Get method for retrieving the status of an AutoML job",
     description="Retrieve the status of an AutoML job",
     deprecated=False,
     response_description="Id of the AutoML job and its status"
 )
-async def retrieve_job_status(job_id: str) -> dict:
-    return job_controller.retreive_job_status(job_id)
+async def retrieve_job_status(automl_job_id: str) -> dict:
+    return job_controller.retreive_job_status(automl_job_id)
 
 @router.get(
-    path="/automl/job/{job_id}/result", 
+    path="/automl/job/{automl_job_id}/result", 
     tags=["MetaFOX API tpot"],
     summary="Get method for retrieving the result of an AutoML job",
     description="Retrieve the result of an AutoML job",
     deprecated=False,
     response_description="Id of the AutoML job and its result"
 )
-async def retrieve_job_result(job_id: str) -> dict:
-    return job_controller.retrieve_job_result(job_id)
+async def retrieve_job_result(automl_job_id: str) -> dict:
+    return job_controller.retrieve_job_result(automl_job_id)
