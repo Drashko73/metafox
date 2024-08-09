@@ -18,7 +18,8 @@ result_backend = os.getenv(
 
 # List of modules every worker should import
 imports = [
-    'metafox_worker.tasks.start_training'
+    'metafox_worker.tasks.start_training',
+    'metafox_worker.tasks.retrieve_logs'
 ]
 
 # Task settings

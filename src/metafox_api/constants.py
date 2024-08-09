@@ -5,3 +5,5 @@ API_NAME = 'MetaFOX API'
 API_DOCS_URL = '/metafox/docs'
 API_REDOC_URL = '/metafox/redoc'
 API_PREFIX = '/metafox/api'
+
+LOG_LINES = 10

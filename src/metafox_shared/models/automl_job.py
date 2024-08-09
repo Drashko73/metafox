@@ -1,57 +1,25 @@
-from typing import List, Union
-from pydantic import BaseModel
+from abc import ABC, abstractmethod
+from typing import Annotated
+from pydantic import BaseModel, Field
 
-class AutoMLJob(BaseModel):
-    """
-    Represents a request to create an AutoML job.
-
-    Args:
-        job_name (str): The name of the job.
-        data_source (str): The data source for the job.
-        target_variable (str): The target variable for the job.
-        problem_type (str): The type of problem to be solved.
-        metrics (List[str]): The evaluation metrics for the job.
-        random_state (int): The random state for reproducibility.
-        model (str): The model to be used for the job.
-        max_iterations (int): The maximum number of iterations for the job.
-        timeout (int): The timeout for the job.
-    """
-    job_name: str
-    data_source: str
-    target_variable: str
-    problem_type: str
-    metrics: List[str]
-    random_state: Union[int, None]
-    model: Union[str, None]
-    max_iterations: Union[int, None]
-    timeout: Union[int, None]
-    automl_library: Union[str, None]
+class AutoMLJob(BaseModel, ABC):
+    job_name: Annotated[str, Field(
+        description="Job name"
+    )]
+    data_source: Annotated[str, Field(
+        description="Data source"
+    )]
+    target_variable: Annotated[str, Field(
+        description="Target variable"
+    )]
+    problem_type: Annotated[str, Field(
+        description="Problem type"
+    )]
     
-    def model_dump(self) -> dict:
-        """
-        Dumps the model details to a dictionary.
-        
-        Returns:
-            dict: The model details.
-        """
-        return {
-            "job_name": self.job_name,
-            "data_source": self.data_source,
-            "target_variable": self.target_variable,
-            "problem_type": self.problem_type,
-            "metrics": self.metrics,
-            "random_state": self.random_state,
-            "model": self.model,
-            "max_iterations": self.max_iterations,
-            "timeout": self.timeout,
-            "automl_library": self.automl_library
-        }
-        
+    @abstractmethod
+    def custom_model_dump(self) -> dict:
+        pass
+    
+    @abstractmethod
     def __str__(self) -> str:
-        """
-        Returns the string representation of the model details.
-        
-        Returns:
-            str: The string representation of the model details.
-        """
-        return str(self.model_dump())
+        pass

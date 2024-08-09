@@ -1,9 +1,8 @@
 from fastapi import APIRouter
 
-from metafox_shared.models.automl_job import AutoMLJob
-from metafox_shared.requests.start_automl_job import StartAutoMLJob
-from metafox_api.tpot.controllers.automl_job_controller import AutoMLJobController
+from metafox_shared.models.tpot_job import TPOTAutoMLJob
 from metafox_shared.dal.redis.redis_client import RedisClient
+from metafox_api.tpot.controllers.automl_job_controller import AutoMLJobController
 
 router = APIRouter()
 data_store = RedisClient()
@@ -17,19 +16,30 @@ job_controller = AutoMLJobController(data_store)
     deprecated=False,
     response_description="Id of the stored AutoML job and a message"
 )
-async def create_automl_job(body: AutoMLJob) -> dict:
+async def create_automl_job(body: TPOTAutoMLJob) -> dict:
     return job_controller.create_automl_job(body)
 
 @router.post(
-    path="/automl/job/start", 
+    path="/automl/job/{automl_job_id}/start", 
     tags=["MetaFOX API tpot"],
     summary="Post method for starting an AutoML job",
     description="Start an AutoML job",
     deprecated=False,
     response_description="Id of the AutoML job and a message"
 )
-async def start_automl_job(body: StartAutoMLJob) -> dict:
-    return job_controller.start_automl_job(body)
+async def start_automl_job(automl_job_id: str) -> dict:
+    return job_controller.start_automl_job(automl_job_id)
+
+@router.post(
+    path="/automl/job/{automl_job_id}/stop",
+    tags=["MetaFOX API tpot"],
+    summary="Post method for stopping an AutoML job",
+    description="Stop an AutoML job",
+    deprecated=False,
+    response_description="Id of the AutoML job and a message"
+)
+async def stop_automl_job(automl_job_id: str) -> dict:
+    return job_controller.stop_automl_job(automl_job_id)
 
 @router.get(
     path="/automl/job/{automl_job_id}/status", 
