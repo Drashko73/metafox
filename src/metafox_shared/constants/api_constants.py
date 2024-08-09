@@ -1,9 +1,10 @@
-NOT_STARTED = 'not_started'
-CELERY_KEY_PREFIX = 'celery_task_id'
-
 API_NAME = 'MetaFOX API'
 API_DOCS_URL = '/metafox/docs'
 API_REDOC_URL = '/metafox/redoc'
 API_PREFIX = '/metafox/api'
+API_DEFAULT_VERSION = '1.0.0'
+
+NOT_STARTED = 'not_started'
+CELERY_KEY_PREFIX = 'celery_task_id'
 
 LOG_LINES = 10

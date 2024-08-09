@@ -1,21 +1,22 @@
 import pandas as pd
 
 from metafox_worker.main import app
-from metafox_worker.constants import *
+from metafox_shared.constants.tpot_constants import *
+from metafox_shared.constants.string_constants import *
 
 @app.task
 def start_automl_train(config: object) -> dict:
     
-    details = config["details"]
-    job_id = config["id"]
+    details = config[DETAILS]
+    job_id = config[ID]
     
     # Load the data
-    data = pd.read_csv(details["data_source"])
-    X_train = data.drop(details["target_variable"], axis=1)
-    y_train = data[details["target_variable"]]
+    data = pd.read_csv(details[DATA_SOURCE])
+    X_train = data.drop(details[TARGET_VARIABLE], axis=1)
+    y_train = data[details[TARGET_VARIABLE]]
     
-    if details["automl_library"] == TPOT:
-        if details["problem_type"] == "regression":
+    if details[AUTOML_LIBRARY] == TPOT:
+        if details[PROBLEM_TYPE] == REGRESSION:
             from metafox_worker.automl.tpot_regressor import TPOTRegressorWrapper
             
             try:
@@ -25,20 +26,20 @@ def start_automl_train(config: object) -> dict:
                     use_dask=USE_DASK_TPOT,
                     verbosity=VERBOSITY_TPOT,
                     warm_start=WARM_START_TPOT,
-                    generations=details["generations"],
-                    population_size=details["population_size"],
-                    offspring_size=details["offspring_size"],
-                    mutation_rate=details["mutation_rate"],
-                    crossover_rate=details["crossover_rate"],
-                    scoring=details["scoring"],
-                    cv=details["cv"],
-                    subsample=details["subsample"],
-                    max_time_mins=details["max_time_mins"],
-                    max_eval_time_mins=details["max_eval_time_mins"],
-                    random_state=details["random_state"],
-                    config_dict=details["config_dict"],
-                    template=details["template"],
-                    early_stop=details["early_stop"],
+                    generations=details[GENERATIONS],
+                    population_size=details[POPULATION_SIZE],
+                    offspring_size=details[OFFSPRING_SIZE],
+                    mutation_rate=details[MUTATION_RATE],
+                    crossover_rate=details[CROSSOVER_RATE],
+                    scoring=details[SCORING],
+                    cv=details[CV],
+                    subsample=details[SUBSAMPLE],
+                    max_time_mins=details[MAX_TIME_MINS],
+                    max_eval_time_mins=details[MAX_EVAL_TIME_MINS],
+                    random_state=details[RANDOM_STATE],
+                    config_dict=details[CONFIG_DICT],
+                    template=details[TEMPLATE],
+                    early_stop=details[EARLY_STOP],
                     periodic_checkpoint_folder="metafox_worker/checkpoints/" + job_id,
                     log_file="metafox_worker/logs/" + job_id + ".log"
                 )
@@ -59,20 +60,20 @@ def start_automl_train(config: object) -> dict:
                     use_dask=USE_DASK_TPOT,
                     verbosity=VERBOSITY_TPOT,
                     warm_start=WARM_START_TPOT,
-                    generations=details["generations"],
-                    population_size=details["population_size"],
-                    offspring_size=details["offspring_size"],
-                    mutation_rate=details["mutation_rate"],
-                    crossover_rate=details["crossover_rate"],
-                    scoring=details["scoring"],
-                    cv=details["cv"],
-                    subsample=details["subsample"],
-                    max_time_mins=details["max_time_mins"],
-                    max_eval_time_mins=details["max_eval_time_mins"],
-                    random_state=details["random_state"],
-                    config_dict=details["config_dict"],
-                    template=details["template"],
-                    early_stop=details["early_stop"],
+                    generations=details[GENERATIONS],
+                    population_size=details[POPULATION_SIZE],
+                    offspring_size=details[OFFSPRING_SIZE],
+                    mutation_rate=details[MUTATION_RATE],
+                    crossover_rate=details[CROSSOVER_RATE],
+                    scoring=details[SCORING],
+                    cv=details[CV],
+                    subsample=details[SUBSAMPLE],
+                    max_time_mins=details[MAX_TIME_MINS],
+                    max_eval_time_mins=details[MAX_EVAL_TIME_MINS],
+                    random_state=details[RANDOM_STATE],
+                    config_dict=details[CONFIG_DICT],
+                    template=details[TEMPLATE],
+                    early_stop=details[EARLY_STOP],
                     periodic_checkpoint_folder="metafox_worker/checkpoints/" + job_id,
                     log_file="metafox_worker/logs/" + job_id + ".log"
                 )

@@ -1,7 +1,8 @@
 from celery import Celery
+from metafox_shared.constants.string_constants import *
 
 app = Celery(
-    'metafox'
+    METAFOX_STR
 )
 
 app.config_from_object('metafox_worker.celeryconfig')

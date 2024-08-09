@@ -1,4 +1,4 @@
-from metafox_api.constants import *
+from metafox_shared.constants.api_constants import *
 from metafox_shared.dal.idatastore import IDataStore
 from metafox_shared.models.tpot_job import TPOTAutoMLJob
 from metafox_api.tpot.controllers.base_controller import BaseController
