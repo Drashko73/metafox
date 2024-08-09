@@ -50,17 +50,17 @@ To start off, follow these steps:
 
 2. Start the Celery worker by running the following command from the **src** directory:
     ```
-    celery -A metafox.worker.metafox_celery worker --loglevel=info
+    celery -A metafox_worker.main worker --loglevel=info
     ```
 
 3. Start the FastAPI endpoint by running the following command from the **src** directory:
     ```
-    python3 -m metafox.app.app
+    python3 -m metafox_api
     ```
 
 Optional: Start Flower for monitoring Celery workers by running the following command from the **src** directory:
 ```
-celery -A metafox.worker.metafox_celery flower --port=5555
+celery -A metafox_worker.main flower --port=5555
 ```
 
 Once the app and the necessary components are running, you can access the FastAPI endpoint at `http://localhost:8000` and monitor the Celery workers using Flower at `http://localhost:5555`.

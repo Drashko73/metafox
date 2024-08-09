@@ -1,0 +1,8 @@
+# Prevent copying of the logs directory
+logs/*
+
+# Prevent copying of the checkpoints directory
+checkpoints/*
+
+# Prevent copying of the exported_models directory
+exported_models/*
