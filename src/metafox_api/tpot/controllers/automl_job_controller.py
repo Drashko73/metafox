@@ -42,13 +42,14 @@ class AutoMLJobController(BaseController):
     def start_automl_job(self, automl_job_id: str) -> Response:
         
         try:
-            _ = self.data_store.get(CELERY_KEY_PREFIX + automl_job_id)
+            task_id = self.data_store.get(CELERY_KEY_PREFIX + automl_job_id)
             
-            return Response(
-                status_code=400, 
-                content="AutoML job already started.", 
-                media_type="text/plain"
-            )
+            if task_id != NOT_STARTED:
+                return Response(
+                    status_code=400, 
+                    content="AutoML job already started.", 
+                    media_type="text/plain"
+                )
             
         except Exception as e:
             pass

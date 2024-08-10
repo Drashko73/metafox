@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 
 from metafox_worker.main import app
@@ -18,6 +19,15 @@ def start_automl_train(config: object) -> dict:
     if details[AUTOML_LIBRARY] == TPOT:
         if details[PROBLEM_TYPE] == REGRESSION:
             from metafox_worker.automl.tpot_regressor import TPOTRegressorWrapper
+            
+            if not os.path.exists("metafox_worker/logs/"):
+                os.makedirs("metafox_worker/logs/") # Create logs directory if it doesn't exist
+                
+            if not os.path.exists("metafox_worker/checkpoints/"):
+                os.makedirs("metafox_worker/checkpoints/")  # Create checkpoints directory if it doesn't exist
+                
+            if not os.path.exists("metafox_worker/exported_models/"):
+                os.makedirs("metafox_worker/exported_models/")  # Create exported models directory if it doesn't exist
             
             try:
                 model = TPOTRegressorWrapper(

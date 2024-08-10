@@ -2,6 +2,6 @@ celery==5.4.0
 pandas==2.2.1
 redis==5.0.7
 tpot==0.12.2
-# torch==2.3.1
 scikit-learn==1.5.0
 python-dotenv==1.0.1
+flower==2.0.1

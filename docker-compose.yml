@@ -1,0 +1,76 @@
+services:
+  rabbitmq:
+    image: rabbitmq:latest
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672" # RabbitMQ Management UI
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379"
+
+  api:
+    build:
+      context: ./src/metafox_api
+      dockerfile: Dockerfile
+    container_name: metafox_api
+    environment:
+      - API_NAME=MetaFOX
+      - API_VERSION=1.0.0
+      - API_HOST=0.0.0.0
+      - API_PORT=8000
+      - API_PREFIX=/metafox
+      - API_DOCS_URL=/metafox/docs
+      - API_REDOC_URL=/metafox/redoc
+      - BROKER_URL=pyamqp://rabbitmq:5672//
+      - RESULT_BACKEND=redis://redis:6379/0
+      - TASK_SERIALIZER=json
+      - RESULT_SERIALIZER=json
+      - WORKER_CONCURRENCY=12
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_DB=0
+    ports:
+      - "8000:8000"
+    depends_on:
+      - rabbitmq
+      - redis
+    volumes:
+      - ./src/metafox_shared:/usr/src/metafox_shared
+
+  worker:
+    build:
+      context: ./src/metafox_worker
+      dockerfile: Dockerfile
+    container_name: metafox_worker
+    environment:
+      - BROKER_URL=pyamqp://rabbitmq:5672//
+      - RESULT_BACKEND=redis://redis:6379/0
+      - TASK_SERIALIZER=json
+      - RESULT_SERIALIZER=json
+      - WORKER_CONCURRENCY=12
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_DB=0
+    depends_on:
+      - api
+      - rabbitmq
+      - redis
+    volumes:
+      - ./src/metafox_shared:/usr/src/metafox_shared
+
+  flower:
+    build: ./src/metafox_worker
+    command: celery --broker=pyamqp://rabbitmq:5672// flower --port=5555
+    container_name: flower
+    ports:
+      - "5555:5555"
+    depends_on:
+      - rabbitmq
+      - redis
+      - worker
+    volumes:
+      - ./src/metafox_shared:/usr/src/metafox_shared
