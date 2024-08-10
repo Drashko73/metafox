@@ -65,7 +65,6 @@ class TPOTAutoMLJob(AutoMLJob):
     
     def custom_model_dump(self) -> Dict:
         return {
-            JOB_NAME: self.job_name,
             DATA_SOURCE: self.data_source,
             TARGET_VARIABLE: self.target_variable,
             PROBLEM_TYPE: self.problem_type,

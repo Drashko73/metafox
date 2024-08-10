@@ -1,7 +1,6 @@
 METAFOX_STR = "metafox"
 DETAILS = "details"
 ID = "id"
-JOB_NAME = "job_name"
 DATA_SOURCE = "data_source"
 TARGET_VARIABLE = "target_variable"
 AUTOML_LIBRARY = "automl_library"

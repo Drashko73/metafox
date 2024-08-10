@@ -3,9 +3,6 @@ from typing import Annotated
 from pydantic import BaseModel, Field
 
 class AutoMLJob(BaseModel, ABC):
-    job_name: Annotated[str, Field(
-        description="Job name"
-    )]
     data_source: Annotated[str, Field(
         description="Data source"
     )]

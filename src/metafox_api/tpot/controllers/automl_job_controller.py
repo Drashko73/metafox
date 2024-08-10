@@ -1,3 +1,5 @@
+import json
+from fastapi import Response
 from metafox_shared.constants.api_constants import *
 from metafox_shared.dal.idatastore import IDataStore
 from metafox_shared.models.tpot_job import TPOTAutoMLJob
@@ -8,7 +10,7 @@ class AutoMLJobController(BaseController):
     def __init__(self, data_store: IDataStore) -> None:
         super().__init__(data_store)
         
-    def create_automl_job(self, body: TPOTAutoMLJob) -> dict:
+    def create_automl_job(self, body: TPOTAutoMLJob) -> Response:
         job_details = body.__str__()
                 
         id = self.data_store.generate_unique_job_key()
@@ -16,20 +18,49 @@ class AutoMLJobController(BaseController):
         try:
             self.data_store.set(id, job_details)
         except Exception as e:
-            return {"message": "Error saving AutoML job details.", "automl_job_id": None}
+            return Response(
+                status_code=500, 
+                content="Error saving AutoML job details.", 
+                media_type="text/plain"
+            )
         
         try:
             self.data_store.set(CELERY_KEY_PREFIX + id, NOT_STARTED)    # Set celery task id to NOT_STARTED
         except Exception as e:
-            return {"message": "Error saving celery task id status.", "automl_job_id": None}
-        
-        return {"message": "AutoML job details saved successfully.", "automl_job_id": id}
+            return Response(
+                status_code=500, 
+                content="Error saving celery task id.", 
+                media_type="text/plain"
+            )
+            
+        return Response(
+            status_code=200, 
+            content=json.dumps({"message": "AutoML job created.", "automl_job_id": id}), 
+            media_type="application/json"
+        )
     
-    def start_automl_job(self, automl_job_id: str) -> dict:
+    def start_automl_job(self, automl_job_id: str) -> Response:
+        
+        try:
+            _ = self.data_store.get(CELERY_KEY_PREFIX + automl_job_id)
+            
+            return Response(
+                status_code=400, 
+                content="AutoML job already started.", 
+                media_type="text/plain"
+            )
+            
+        except Exception as e:
+            pass
+        
         try:
             job_details = self.data_store.get(automl_job_id)
         except Exception as e:
-            return {"message": "Error retrieving job details."}
+            return Response(
+                status_code=404, 
+                content="AutoML job not found.", 
+                media_type="text/plain"
+            )
         
         job_details = eval(job_details) # Convert string to dictionary
         
@@ -38,54 +69,131 @@ class AutoMLJobController(BaseController):
         try:
             self.data_store.update(CELERY_KEY_PREFIX + automl_job_id, result.id)  # Update celery task id status to the task id
         except Exception as e:
-            return {"message": "Error updating celery task status."}
+            return Response(
+                status_code=500, 
+                content="Error saving celery task id.", 
+                media_type="text/plain"
+            )
         
-        return {"message": "AutoML job started."}
+        return Response(
+            status_code=200, 
+            content="AutoML job started.", 
+            media_type="text/plain"
+        )
     
-    def stop_automl_job(self, automl_job_id: str) -> dict:
+    def stop_automl_job(self, automl_job_id: str) -> Response:
         try:
             status = self.data_store.get(CELERY_KEY_PREFIX + automl_job_id)
         except Exception as e:
-            return {"message": "Error retrieving celery task id."}
+            return Response(
+                status_code=404,
+                content="Celery task id not found.",
+                media_type="text/plain"
+            )
         
         if status == NOT_STARTED:
-            return {"message": "AutoML job not started. Celery task id not set."}
+            return Response(
+                status_code=200,
+                content="AutoML job not started. Celery task id not set.",
+                media_type="text/plain"
+            )
         
         self.celery.control.revoke(status, terminate=True)
         
-        return {"message": "AutoML job stopped."}
+        return Response(
+            status_code=200,
+            content="AutoML job stopped.",
+            media_type="text/plain"
+        )
     
-    def retreive_job_status(self, automl_job_id: str) -> dict:
+    def retreive_job_status(self, automl_job_id: str) -> Response:
         try:
             status = self.data_store.get(CELERY_KEY_PREFIX + automl_job_id)
         except Exception as e:
-            return {"message": "Error retrieving celery task id."}
+            return Response(
+                status_code=404,
+                content="Celery task id not found.",
+                media_type="text/plain"
+            )
         
         if status == NOT_STARTED:
-            return {"message": "AutoML job not started. Celery task id not set.", "status": status}
+            return Response(
+                status_code=200,
+                content="AutoML job not started. Celery task id not set.",
+                media_type="text/plain"
+            )
         
         job = self.celery.AsyncResult(status)
         
         logs = self.celery.send_task('metafox_worker.tasks.retrieve_logs.retrieve_logs', [automl_job_id, LOG_LINES])
         logs.wait()
         
-        return {
-            "message": "AutoML job status obtained.", 
-            "status": job.status, 
-            "logs": logs.get()
-        }
-    
-    def retrieve_job_result(self, automl_job_id: str) -> dict:
+        return Response(
+            status_code=200,
+            content=json.dumps({"status": job.state, "logs": logs.get()}),
+            media_type="application/json"
+        )
+        
+    def retrieve_job_logs(self, automl_job_id: str, lines: int) -> Response:
+        if lines < 0:
+            return Response(
+                status_code=400, 
+                content="Number of lines must be greater than or equal to 0.", 
+                media_type="text/plain"
+            )
+        
         try:
             status = self.data_store.get(CELERY_KEY_PREFIX + automl_job_id)
         except Exception as e:
-            return {"message": "Error retrieving celery task id.", "result": None}
+            return Response(
+                status_code=404, 
+                content="Celery task id not found.", 
+                media_type="text/plain"
+            )
         
         if status == NOT_STARTED:
-            return {"message": "AutoML job not started. Celery task id not set.", "result": None}
+            return Response(
+                status_code=200, 
+                content="AutoML job not started. Celery task id not set.", 
+                media_type="text/plain"
+            )
+        
+        logs = self.celery.send_task('metafox_worker.tasks.retrieve_logs.retrieve_logs', [automl_job_id, lines])
+        logs.wait()
+        
+        return Response(
+            status_code=200, 
+            content=logs.get(), 
+            media_type="text/plain"
+        )
+    
+    def retrieve_job_result(self, automl_job_id: str) -> Response:
+        try:
+            status = self.data_store.get(CELERY_KEY_PREFIX + automl_job_id)
+        except Exception as e:
+            return Response(
+                status_code=404, 
+                content="Celery task id not found.", 
+                media_type="text/plain"
+            )
+        
+        if status == NOT_STARTED:
+            return Response(
+                status_code=200, 
+                content="AutoML job not started. Celery task id not set.", 
+                media_type="text/plain"
+            )
         
         res = self.celery.AsyncResult(status)
         if res.ready():
-            return {"message": "AutoML job result obtained.", "result": res.get()}
-        else:
-            return {"message": "AutoML job result not ready yet", "result": None}
+            return Response(
+                status_code=200, 
+                content=json.dumps({"result": res.get()}),
+                media_type="application/json"
+            )
+        
+        return Response(
+            status_code=200, 
+            content="AutoML job not completed.", 
+            media_type="text/plain"
+        )
