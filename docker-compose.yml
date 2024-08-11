@@ -45,7 +45,6 @@ services:
     build:
       context: ./src/metafox_worker
       dockerfile: Dockerfile
-    container_name: metafox_worker
     environment:
       - BROKER_URL=pyamqp://rabbitmq:5672//
       - RESULT_BACKEND=redis://redis:6379/0
@@ -61,6 +60,8 @@ services:
       - redis
     volumes:
       - ./src/metafox_shared:/usr/src/metafox_shared
+    deploy:
+      replicas: 2
 
   flower:
     build: ./src/metafox_worker
