@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import Annotated
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 class AutoMLJob(BaseModel, ABC):
     data_source: Annotated[str, Field(
@@ -20,3 +20,10 @@ class AutoMLJob(BaseModel, ABC):
     @abstractmethod
     def __str__(self) -> str:
         pass
+    
+    # Field validators
+    @field_validator('problem_type')
+    def check_problem_type(cls, value):
+        if value not in ['classification', 'regression']:
+            raise ValueError('Problem type must be either classification or regression')
+        return value
