@@ -1,5 +1,6 @@
 import json
 from fastapi import Response
+from celery import states
 from metafox_shared.constants.api_constants import *
 from metafox_shared.dal.idatastore import IDataStore
 from metafox_shared.models.tpot_job import TPOTAutoMLJob
@@ -129,6 +130,13 @@ class AutoMLJobController(BaseController):
         logs = self.celery.send_task('metafox_worker.tasks.retrieve_logs.retrieve_logs', [automl_job_id, LOG_LINES])
         logs.wait()
         
+        if job.state == states.FAILURE:
+            return Response(
+                status_code=200,
+                content=json.dumps({"status": job.state, "logs": logs.get(), "traceback": job.traceback}),
+                media_type="application/json"
+            )
+        
         return Response(
             status_code=200,
             content=json.dumps({"status": job.state, "logs": logs.get()}),
@@ -187,6 +195,13 @@ class AutoMLJobController(BaseController):
         
         res = self.celery.AsyncResult(status)
         if res.ready():
+            if res.state == states.FAILURE:
+                return Response(
+                    status_code=500,
+                    content=json.dumps({"traceback": res.traceback}),
+                    media_type="application/json"
+                )
+            
             return Response(
                 status_code=200, 
                 content=json.dumps({"result": res.get()}),
