@@ -1,12 +1,51 @@
 import os
+import celery
+import threading
+import celery.result
 import pandas as pd
+from celery import Task
+from time import sleep
 
 from metafox_worker.main import app
-from metafox_shared.constants.tpot_constants import *
+from metafox_shared.constants.worker_constants import *
 from metafox_shared.constants.string_constants import *
 
-@app.task
-def start_automl_train(config: object) -> dict:
+stop_event = threading.Event()
+logs_dictionary = {}
+
+def observe_logs(task: Task, job_id: str, task_id: str) -> None:
+    log_file = "metafox_worker/logs/" + job_id + ".log"
+    
+    while not stop_event.is_set():
+        if os.path.exists(log_file):
+            with open(log_file, "r") as f:
+                logs = f.readlines()
+                
+                celery.Task.update_state(
+                    task,
+                    state="PENDING",
+                    task_id=task_id,
+                    meta={"logs": logs}
+                )
+        
+        sleep(OBSERVER_LOGS_SLEEP)
+    
+    # Read the logs one last time before stopping the observer thread and updating the task state
+    if os.path.exists(log_file):
+        with open(log_file, "r") as f:
+            logs = f.readlines()
+            
+            celery.Task.update_state(
+                task,
+                state="PENDING",
+                task_id=task_id,
+                meta={"logs": logs}
+            )
+            
+            logs_dictionary[task_id] = logs
+
+@app.task(bind = True)
+def start_automl_train(self, config: object) -> dict:
     
     details = config[DETAILS]
     job_id = config[ID]
@@ -56,7 +95,14 @@ def start_automl_train(config: object) -> dict:
             except Exception as e:
                 return {"message": "Error occurred during TPOT initialization.", "error": str(e)}
             
+            observer_thread = threading.Thread(target=observe_logs, args=(self, job_id, self.request.id))
+            observer_thread.start()
+            
             model.fit(X_train, y_train)
+            
+            stop_event.set()
+            observer_thread.join()
+            
             result = model.get_model_params()
             
             model.export_model("metafox_worker/exported_models/" + job_id + ".py")
@@ -90,11 +136,18 @@ def start_automl_train(config: object) -> dict:
             except Exception as e:
                 return {"message": "Error occurred during TPOT initialization.", "error": str(e)}
             
+            observer_thread = threading.Thread(target=observe_logs, args=(self, job_id, self.request.id))
+            observer_thread.start()
+            
             model.fit(X_train, y_train)
+            
+            stop_event.set()
+            observer_thread.join()
+            
             result = model.get_model_params()
             
             model.export_model("metafox_worker/exported_models/" + job_id + ".py")
     else:
         raise ValueError("Invalid AutoML library specified.")
     
-    return {"message": "AutoML task completed.", "model": result}
+    return {"message": "AutoML task completed.", "model": result, "logs": logs_dictionary[self.request.id]}

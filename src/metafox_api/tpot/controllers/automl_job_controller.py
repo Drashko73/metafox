@@ -127,19 +127,18 @@ class AutoMLJobController(BaseController):
         
         job = self.celery.AsyncResult(status)
         
-        logs = self.celery.send_task('metafox_worker.tasks.retrieve_logs.retrieve_logs', [automl_job_id, LOG_LINES])
-        logs.wait()
+        logs = "".join(job.info["logs"][-LOG_LINES:]) if job.info and "logs" in job.info else ""
         
         if job.state == states.FAILURE:
             return Response(
                 status_code=200,
-                content=json.dumps({"status": job.state, "logs": logs.get(), "traceback": job.traceback}),
+                content=json.dumps({"status": job.state, "logs": logs, "traceback": job.traceback}),
                 media_type="application/json"
             )
         
         return Response(
             status_code=200,
-            content=json.dumps({"status": job.state, "logs": logs.get()}),
+            content=json.dumps({"status": job.state, "logs": logs}),
             media_type="application/json"
         )
         
@@ -166,13 +165,14 @@ class AutoMLJobController(BaseController):
                 content="AutoML job not started. Celery task id not set.", 
                 media_type="text/plain"
             )
+            
+        job = self.celery.AsyncResult(status)
         
-        logs = self.celery.send_task('metafox_worker.tasks.retrieve_logs.retrieve_logs', [automl_job_id, lines])
-        logs.wait()
+        logs = "".join(job.info["logs"][-lines:]) if job.info and "logs" in job.info else ""
         
         return Response(
             status_code=200, 
-            content=logs.get(), 
+            content=logs,
             media_type="text/plain"
         )
     
