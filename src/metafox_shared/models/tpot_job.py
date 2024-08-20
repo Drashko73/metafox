@@ -2,10 +2,8 @@ from pydantic import Field, field_validator
 from typing import Union, Dict, Annotated, Optional
 from metafox_shared.models.automl_job import AutoMLJob
 from metafox_shared.constants.string_constants import *
-from metafox_shared.constants.worker_constants import TPOT
+from metafox_shared.constants.worker_constants import TPOT, AVAILABLE_CONFIG_DICTS
 from metafox_shared.constants.default_value_constants import *
-
-available_config_dicts = [None, 'TPOT light', 'TPOT MDR', 'TPOT sparse']
 
 class TPOTAutoMLJob(AutoMLJob):
     generations: Annotated[Optional[int], Field(
@@ -96,10 +94,10 @@ class TPOTAutoMLJob(AutoMLJob):
         if value is None:
             return value
         
-        if value not in available_config_dicts and isinstance(value, str):
+        if value not in AVAILABLE_CONFIG_DICTS and isinstance(value, str):
             return value
         
-        if value not in available_config_dicts:
+        if value not in AVAILABLE_CONFIG_DICTS:
             raise ValueError('Config dict must be one of the available config dicts')
         
         return value

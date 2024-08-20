@@ -1,10 +1,11 @@
 import os
 import celery
 import threading
-import celery.result
+import numpy as np
 import pandas as pd
-from celery import Task
+import celery.result
 from time import sleep
+from celery import Task
 
 from metafox_worker.main import app
 from metafox_shared.constants.worker_constants import *
@@ -86,7 +87,7 @@ def start_automl_train(self, config: object) -> dict:
                     max_time_mins=details[MAX_TIME_MINS],
                     max_eval_time_mins=details[MAX_EVAL_TIME_MINS],
                     random_state=details[RANDOM_STATE],
-                    config_dict=details[CONFIG_DICT],
+                    config_dict=details[CONFIG_DICT] if details[CONFIG_DICT] in AVAILABLE_CONFIG_DICTS else eval(details[CONFIG_DICT]),
                     template=details[TEMPLATE],
                     early_stop=details[EARLY_STOP],
                     periodic_checkpoint_folder="metafox_worker/checkpoints/" + job_id,
@@ -98,14 +99,20 @@ def start_automl_train(self, config: object) -> dict:
             observer_thread = threading.Thread(target=observe_logs, args=(self, job_id, self.request.id))
             observer_thread.start()
             
-            model.fit(X_train, y_train)
+            errorFitting = False
+            try:
+                model.fit(X_train, y_train)
+            except Exception as e:
+                errorFitting = True
             
             stop_event.set()
             observer_thread.join()
+            stop_event.clear()
             
-            result = model.get_model_params()
+            result = model.get_model_params() if not errorFitting else None
             
-            model.export_model("metafox_worker/exported_models/" + job_id + ".py")
+            if not errorFitting:
+                model.export_model("metafox_worker/exported_models/" + job_id + ".py")
         else:
             from metafox_worker.automl.tpot_classifier import TPOTClassifierWrapper
             
@@ -127,7 +134,7 @@ def start_automl_train(self, config: object) -> dict:
                     max_time_mins=details[MAX_TIME_MINS],
                     max_eval_time_mins=details[MAX_EVAL_TIME_MINS],
                     random_state=details[RANDOM_STATE],
-                    config_dict=details[CONFIG_DICT],
+                    config_dict=details[CONFIG_DICT] if details[CONFIG_DICT] in AVAILABLE_CONFIG_DICTS else eval(details[CONFIG_DICT]),
                     template=details[TEMPLATE],
                     early_stop=details[EARLY_STOP],
                     periodic_checkpoint_folder="metafox_worker/checkpoints/" + job_id,
@@ -139,14 +146,20 @@ def start_automl_train(self, config: object) -> dict:
             observer_thread = threading.Thread(target=observe_logs, args=(self, job_id, self.request.id))
             observer_thread.start()
             
-            model.fit(X_train, y_train)
+            errorFitting = False
+            try:
+                model.fit(X_train, y_train)
+            except Exception as e:
+                errorFitting = True
             
             stop_event.set()
             observer_thread.join()
+            stop_event.clear()
             
-            result = model.get_model_params()
+            result = model.get_model_params() if not errorFitting else None
             
-            model.export_model("metafox_worker/exported_models/" + job_id + ".py")
+            if not errorFitting:
+                model.export_model("metafox_worker/exported_models/" + job_id + ".py")
     else:
         raise ValueError("Invalid AutoML library specified.")
     

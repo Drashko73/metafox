@@ -100,7 +100,7 @@ class AutoMLJobController(BaseController):
                 media_type="text/plain"
             )
         
-        self.celery.control.revoke(status, terminate=True)
+        self.celery.control.terminate(task_id=status, signal="SIGQUIT")
         
         return Response(
             status_code=200,
