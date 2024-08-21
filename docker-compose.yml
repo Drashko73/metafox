@@ -63,14 +63,14 @@ services:
       replicas: 2
 
   flower:
-    build: ./src/metafox_worker
-    command: celery --broker=pyamqp://rabbitmq:5672// flower --port=5555
+    image: mher/flower
     container_name: flower
+    environment:
+      - BROKER_URL=pyamqp://rabbitmq:5672//
+      - RESULT_BACKEND=redis://redis:6379/0
     ports:
       - "5555:5555"
     depends_on:
+      - api
       - rabbitmq
       - redis
-      - worker
-    volumes:
-      - ./src/metafox_shared:/usr/src/metafox_shared
