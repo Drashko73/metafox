@@ -1,9 +1,10 @@
 import os
 
 from dotenv import load_dotenv
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from metafox_shared.constants.api_constants import *
 from metafox_api.tpot.routers import automl_router as tpot_router
+from metafox_api.auth import get_user_info
 
 load_dotenv()
 
@@ -19,7 +20,11 @@ api_prefix = os.getenv("API_PREFIX", API_PREFIX)
 host = os.getenv("API_HOST", "localhost")
 port = os.getenv("API_PORT", 8000)
 
-app.include_router(tpot_router.router, prefix=f"{api_prefix}/tpot")
+app.include_router(
+    router=tpot_router.router, 
+    prefix=f"{api_prefix}/tpot",
+    dependencies=[Depends(get_user_info)],
+)
 
 if __name__ == "__main__":
     import uvicorn

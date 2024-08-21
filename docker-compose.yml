@@ -32,6 +32,14 @@ services:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - REDIS_DB=0
+      - KEYCLOAK_SERVER_URL=
+      - KEYCLOAK_CLIENT_ID=
+      - KEYCLOAK_REALM_NAME=
+      - KEYCLOAK_CLIENT_SECRET=
+      - KEYCLOAK_AUTHORIZATION_URL=
+      - KEYCLOAK_TOKEN_URL=
+      - KEYCLOAK_REFRESH_URL=,
+      - CORS_ORIGINS=
     ports:
       - "8000:8000"
     depends_on:

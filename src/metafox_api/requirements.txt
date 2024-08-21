@@ -4,3 +4,4 @@ redis==5.0.7
 pydantic==2.7.1
 pandas==2.2.1
 celery==5.4.0
+python-keycloak==4.3.0
