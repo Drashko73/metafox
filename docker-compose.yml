@@ -38,8 +38,9 @@ services:
       - KEYCLOAK_CLIENT_SECRET=
       - KEYCLOAK_AUTHORIZATION_URL=
       - KEYCLOAK_TOKEN_URL=
-      - KEYCLOAK_REFRESH_URL=,
+      - KEYCLOAK_REFRESH_URL=
       - CORS_ORIGINS=
+      - API_AUTH_ENABLED=False
     ports:
       - "8000:8000"
     depends_on:

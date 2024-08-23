@@ -23,7 +23,7 @@ port = os.getenv("API_PORT", 8000)
 app.include_router(
     router=tpot_router.router, 
     prefix=f"{api_prefix}/tpot",
-    dependencies=[Depends(get_user_info)],
+    dependencies=[Depends(get_user_info)] if os.getenv("API_AUTH_ENABLED", "False") == "True" else []
 )
 
 if __name__ == "__main__":
