@@ -2,9 +2,9 @@ import os
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, Depends
-from metafox_shared.constants.api_constants import *
-from metafox_api.tpot.routers import automl_router as tpot_router
 from metafox_api.auth import get_user_info
+from metafox_api.tpot.routers import tpot_router
+from metafox_shared.constants.api_constants import *
 
 load_dotenv()
 

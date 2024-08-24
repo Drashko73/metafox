@@ -6,7 +6,7 @@ from metafox_shared.dal.idatastore import IDataStore
 from metafox_shared.models.tpot_job import TPOTAutoMLJob
 from metafox_api.tpot.controllers.base_controller import BaseController
 
-class AutoMLJobController(BaseController):
+class TPOTController(BaseController):
     
     def __init__(self, data_store: IDataStore) -> None:
         super().__init__(data_store)
@@ -42,29 +42,29 @@ class AutoMLJobController(BaseController):
     
     def start_automl_job(self, automl_job_id: str) -> Response:
         
-        try:
-            task_id = self.data_store.get(CELERY_KEY_PREFIX + automl_job_id)
-            
-            if task_id != NOT_STARTED:
-                return Response(
-                    status_code=400, 
-                    content="AutoML job already started.", 
-                    media_type="text/plain"
-                )
-            
-        except Exception as e:
-            pass
+        task_id = self._get_task_id(automl_job_id)
         
-        try:
-            job_details = self.data_store.get(automl_job_id)
-        except Exception as e:
+        if task_id is None:
+            return Response(
+                status_code=404, 
+                content="Could not find task id for the AutoML job.", 
+                media_type="text/plain"
+            )
+        
+        if task_id != NOT_STARTED:
+            return Response(
+                status_code=400, 
+                content="AutoML job already started.", 
+                media_type="text/plain"
+            )
+        
+        job_details = self._get_automl_job_details(automl_job_id)
+        if job_details is None:
             return Response(
                 status_code=404, 
                 content="AutoML job not found.", 
                 media_type="text/plain"
             )
-        
-        job_details = eval(job_details) # Convert string to dictionary
         
         result = self.celery.send_task('metafox_worker.tasks.start_training.start_automl_train', [{"details": job_details, "id": automl_job_id}])
         
@@ -108,7 +108,31 @@ class AutoMLJobController(BaseController):
             media_type="text/plain"
         )
     
-    def retreive_job_status(self, automl_job_id: str) -> Response:
+    def retrieve_job_details(self, automl_job_id: str) -> Response:
+        
+        job_details = self._get_automl_job_details(automl_job_id)
+        
+        if job_details is None:    
+            return Response(
+                status_code=404,
+                content="AutoML job not found.",
+                media_type="text/plain"
+            )
+        
+        return Response(
+            status_code=200,
+            content=json.dumps({"automl_job_id": automl_job_id, "details": job_details}),
+            media_type="application/json"
+        )
+    
+    def retreive_job_status(self, automl_job_id: str, lines: int) -> Response:
+        if lines < 0:
+            return Response(
+                status_code=400, 
+                content="Number of lines must be greater than or equal to 0.", 
+                media_type="text/plain"
+            )
+        
         try:
             status = self.data_store.get(CELERY_KEY_PREFIX + automl_job_id)
         except Exception as e:
@@ -127,7 +151,7 @@ class AutoMLJobController(BaseController):
         
         job = self.celery.AsyncResult(status)
         
-        logs = "".join(job.info["logs"][-LOG_LINES:]) if job.info and "logs" in job.info else ""
+        logs = "".join(job.info["logs"][-lines:]) if job.info and "logs" in job.info else ""
         
         if job.state == states.FAILURE:
             return Response(
@@ -140,40 +164,6 @@ class AutoMLJobController(BaseController):
             status_code=200,
             content=json.dumps({"status": job.state, "logs": logs}),
             media_type="application/json"
-        )
-        
-    def retrieve_job_logs(self, automl_job_id: str, lines: int) -> Response:
-        if lines < 0:
-            return Response(
-                status_code=400, 
-                content="Number of lines must be greater than or equal to 0.", 
-                media_type="text/plain"
-            )
-        
-        try:
-            status = self.data_store.get(CELERY_KEY_PREFIX + automl_job_id)
-        except Exception as e:
-            return Response(
-                status_code=404, 
-                content="Celery task id not found.", 
-                media_type="text/plain"
-            )
-        
-        if status == NOT_STARTED:
-            return Response(
-                status_code=200, 
-                content="AutoML job not started. Celery task id not set.", 
-                media_type="text/plain"
-            )
-            
-        job = self.celery.AsyncResult(status)
-        
-        logs = "".join(job.info["logs"][-lines:]) if job.info and "logs" in job.info else ""
-        
-        return Response(
-            status_code=200, 
-            content=logs,
-            media_type="text/plain"
         )
     
     def retrieve_job_result(self, automl_job_id: str) -> Response:
@@ -213,3 +203,17 @@ class AutoMLJobController(BaseController):
             content="AutoML job not completed.", 
             media_type="text/plain"
         )
+        
+    def _get_automl_job_details(self, automl_job_id: str) -> dict:
+        try:
+            job_details = self.data_store.get(automl_job_id)
+        except Exception as e:
+            return None
+        
+        return eval(job_details) if job_details else None
+    
+    def _get_task_id(self, automl_job_id: str) -> str:
+        try:
+            return self.data_store.get(CELERY_KEY_PREFIX + automl_job_id)
+        except Exception as e:
+            return None
