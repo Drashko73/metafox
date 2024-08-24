@@ -1,8 +1,12 @@
 from abc import ABC, abstractmethod
-from typing import Annotated
+from typing import Annotated, Optional
 from pydantic import BaseModel, Field, field_validator
 
 class AutoMLJob(BaseModel, ABC):
+    job_name: Annotated[Optional[str], Field(
+        default=None,
+        description="Job name"
+    )]
     data_source: Annotated[str, Field(
         description="Data source"
     )]
