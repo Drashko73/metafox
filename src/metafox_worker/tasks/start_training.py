@@ -1,5 +1,6 @@
 import os
 import celery
+import pickle
 import threading
 import numpy as np
 import pandas as pd
@@ -109,7 +110,7 @@ def start_automl_train(self, config: object) -> dict:
             observer_thread.join()
             stop_event.clear()
             
-            result = model.get_model_params() if not errorFitting else None
+            result = pickle.dumps(model.get_pipeline()) if not errorFitting else None
             
             if not errorFitting:
                 model.export_model("metafox_worker/exported_models/" + job_id + ".py")
@@ -156,7 +157,7 @@ def start_automl_train(self, config: object) -> dict:
             observer_thread.join()
             stop_event.clear()
             
-            result = model.get_model_params() if not errorFitting else None
+            result = pickle.dumps(model.get_pipeline()) if not errorFitting else None
             
             if not errorFitting:
                 model.export_model("metafox_worker/exported_models/" + job_id + ".py")

@@ -42,6 +42,17 @@ async def start_automl_job(automl_job_id: str) -> Response:
 async def stop_automl_job(automl_job_id: str) -> Response:
     return tpot_controller.stop_automl_job(automl_job_id)
 
+@router.post(
+    path="/automl/job/{automl_job_id}/save_model_bentoml",
+    tags=["TPOT to BentoML"],
+    summary="Post method for saving a model using BentoML",
+    description="Save a model using BentoML",
+    deprecated=False,
+    response_description="Id of the AutoML job and a message"
+)
+async def save_model_bentoml(automl_job_id: str) -> Response:
+    return tpot_controller.save_model_to_bentoml(automl_job_id)
+
 @router.get(
     path="/automl/job/{automl_job_id}/details",
     tags=["TPOT AutoML Job Configuration"],
@@ -69,8 +80,19 @@ async def retrieve_job_status(automl_job_id: str, lines: int = LOG_LINES) -> Res
     tags=["MetaFOX API TPOT"],
     summary="Get method for retrieving the result of an AutoML job",
     description="Retrieve the result of an AutoML job",
-    deprecated=False,
+    deprecated=True,
     response_description="Id of the AutoML job and its result"
 )
 async def retrieve_job_result(automl_job_id: str) -> Response:
     return tpot_controller.retrieve_job_result(automl_job_id)
+
+@router.get(
+    path="/automl/job/{automl_job_id}/export_model_bentoml",
+    tags=["TPOT to BentoML"],
+    summary="Get method for exporting a model using BentoML",
+    description="Export a model using BentoML",
+    deprecated=False,
+    response_description="File containing the exported model",
+)
+async def export_model_bentoml(automl_job_id: str) -> Response:
+    return tpot_controller.export_model_bentoml(automl_job_id)

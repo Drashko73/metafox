@@ -96,7 +96,7 @@ class RedisClient (IDataStore):
         """
         unique_id = uuid.uuid4()
         timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
-        return f"{unique_id}:{timestamp}"
+        return f"{unique_id}_{timestamp}"
 
     def __del__(self) -> None:
         print("Redis client destroyed.")
