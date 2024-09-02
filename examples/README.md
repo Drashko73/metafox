@@ -121,7 +121,7 @@ Request body example 3:
     "max_time_mins": 5,
     "max_eval_time_mins": 5,
     "random_state": 42,
-    "config_dict": "{'sklearn.linear_model.ElasticNetCV':{'l1_ratio': np.arange(0.0, 1.01, 0.05), 'tol': [1e-5, 1e-4, 1e-3, 1e-2, 1e-1]}}"
+    "config_dict": "{'sklearn.linear_model.ElasticNetCV':{'l1_ratio': np.arange(0.0, 1.01, 0.05), 'tol': [1e-5, 1e-4, 1e-3, 1e-2, 1e-1]}}",
     "template": null,
     "early_stop": 5
 }
