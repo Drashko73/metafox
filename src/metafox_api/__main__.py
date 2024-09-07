@@ -3,7 +3,8 @@ import os
 from dotenv import load_dotenv
 from fastapi import FastAPI, Depends
 from metafox_api.auth import get_user_info
-from metafox_api.tpot.routers import tpot_router
+from metafox_api.routers import tpot_router
+from metafox_api.routers import general_router
 from metafox_shared.constants.api_constants import *
 
 load_dotenv()
@@ -19,6 +20,12 @@ app = FastAPI(
 api_prefix = os.getenv("API_PREFIX", API_PREFIX)
 host = os.getenv("API_HOST", "localhost")
 port = os.getenv("API_PORT", 8000)
+
+app.include_router(
+    router=general_router.router,
+    prefix=f"{api_prefix}/general",
+    dependencies=[Depends(get_user_info)] if os.getenv("API_AUTH_ENABLED", "False") == "True" else []
+)
 
 app.include_router(
     router=tpot_router.router, 

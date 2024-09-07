@@ -23,5 +23,9 @@ class IDataStore(ABC):
         pass
     
     @abstractmethod
+    def get_all_keys(self) -> list:
+        pass
+    
+    @abstractmethod
     def __del__(self):
         pass

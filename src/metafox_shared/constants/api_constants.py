@@ -5,6 +5,6 @@ API_PREFIX = '/metafox/api'
 API_DEFAULT_VERSION = '1.0.0'
 
 NOT_STARTED = 'not_started'
-CELERY_KEY_PREFIX = 'celery_task_id'
+CELERY_KEY_PREFIX = 'celeryid_'
 
 LOG_LINES = 10
