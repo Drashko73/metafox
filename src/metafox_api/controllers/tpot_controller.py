@@ -306,20 +306,6 @@ class TPOTController(BaseController):
             media_type="text/plain"
         ) 
         
-    def _get_automl_job_details(self, automl_job_id: str) -> dict:
-        try:
-            job_details = self.data_store.get(automl_job_id)
-        except Exception as e:
-            return None
-        
-        return eval(job_details) if job_details else None
-    
-    def _get_task_id(self, automl_job_id: str) -> str:
-        try:
-            return self.data_store.get(CELERY_KEY_PREFIX + automl_job_id)
-        except Exception as e:
-            return None
-        
     def _save_pipeline_to_bentoml(self, pipeline_bytes: bytes, job_id: int) -> str:
         
         # Check if sklearn module is not imported and import it

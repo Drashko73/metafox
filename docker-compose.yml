@@ -28,7 +28,7 @@ services:
       - RESULT_BACKEND=redis://redis:6379/0
       - TASK_SERIALIZER=json
       - RESULT_SERIALIZER=json
-      - WORKER_CONCURRENCY=12
+      - WORKER_CONCURRENCY=1
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - REDIS_DB=0
@@ -58,7 +58,7 @@ services:
       - RESULT_BACKEND=redis://redis:6379/0
       - TASK_SERIALIZER=json
       - RESULT_SERIALIZER=json
-      - WORKER_CONCURRENCY=12
+      - WORKER_CONCURRENCY=1
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - REDIS_DB=0
@@ -69,7 +69,7 @@ services:
     volumes:
       - ./src/metafox_shared:/usr/src/metafox_shared
     deploy:
-      replicas: 2
+      replicas: 4
 
   flower:
     image: mher/flower

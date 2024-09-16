@@ -3,7 +3,7 @@ import json
 from fastapi import Response
 from metafox_shared.dal.idatastore import IDataStore
 from metafox_api.controllers.base_controller import BaseController
-from metafox_shared.constants.api_constants import CELERY_KEY_PREFIX
+from metafox_shared.constants.api_constants import CELERY_KEY_PREFIX, NOT_STARTED, CELERY_METAS_KEY_PREFIX
 
 
 class GeneralController(BaseController):
@@ -29,5 +29,42 @@ class GeneralController(BaseController):
         return Response(
             status_code=200,
             content="TODO: Implement pruning of completed AutoML jobs.",
+            media_type="text/plain"
+        )
+        
+    def delete_automl_job(self, job_id: str) -> str:
+        task_id = self._get_task_id(job_id)
+        
+        if task_id is None:
+            return Response(
+                status_code=404,
+                content="AutoML job not found.",
+                media_type="text/plain"
+            )
+            
+        if task_id == NOT_STARTED:
+            return Response(
+                status_code=400,
+                content="Cannot delete AutoML job that has not started.",
+                media_type="text/plain"
+            )
+        
+        # Check if the task is still running
+        is_ready = self.celery.AsyncResult(task_id).ready()
+        
+        if not is_ready:
+            return Response(
+                status_code=400,
+                content="Cannot delete AutoML job that is still running.",
+                media_type="text/plain"
+            )
+        
+        self.data_store.delete(CELERY_METAS_KEY_PREFIX + task_id)
+        self.data_store.delete(CELERY_KEY_PREFIX + job_id)
+        self.data_store.delete(job_id)
+        
+        return Response(
+            status_code=200,
+            content="AutoML job deleted.",
             media_type="text/plain"
         )

@@ -38,16 +38,17 @@ class RedisClient (IDataStore):
     def delete(self, key: str) -> None:
         if self.redis.exists(key):
             self.redis.delete(key)
+            return
         
         raise Exception(f"Key {key} does not exist.")
             
     def get_all_keys(self) -> list:
-        return self.redis.keys("[^celeryid_]*")
+        return self.redis.keys("[^celeryid_]*") ### TODO: Fix regex pattern to match all keys (Now it has some issues)
             
     def generate_unique_job_key(self) -> str:
         unique_id = uuid.uuid4()
         timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
-        return f"{unique_id}_{timestamp}"
+        return f"{unique_id}-{timestamp}"
 
     def __del__(self) -> None:
         print("Redis client destroyed.")
