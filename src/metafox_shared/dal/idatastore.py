@@ -27,5 +27,9 @@ class IDataStore(ABC):
         pass
     
     @abstractmethod
+    def get_keys_by_pattern(self, pattern: str) -> list:
+        pass
+    
+    @abstractmethod
     def __del__(self):
         pass

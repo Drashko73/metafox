@@ -25,14 +25,30 @@ class GeneralController(BaseController):
             media_type="application/json"
         )
     
-    def prune_automl_jobs(self) -> str:
+    def prune_automl_jobs(self) -> Response:
+
+        job_ids, task_ids = self._get_started_jobs()
+        
+        deleted_jobs = 0
+        for task_id in task_ids:
+            
+            # Check if the task is still running
+            is_ready = self.celery.AsyncResult(task_id).ready()
+            
+            if is_ready:
+                self.data_store.delete(CELERY_METAS_KEY_PREFIX + task_id)
+                self.data_store.delete(CELERY_KEY_PREFIX + job_ids[task_ids.index(task_id)])
+                self.data_store.delete(job_ids[task_ids.index(task_id)])
+                
+                deleted_jobs += 1
+
         return Response(
             status_code=200,
-            content="TODO: Implement pruning of completed AutoML jobs.",
-            media_type="text/plain"
+            content="Pruned total of " + str(deleted_jobs) + " AutoML jobs.",
+            media_type="text/plain" ### TODO: Possibly change to JSON response with number of deleted jobs
         )
         
-    def delete_automl_job(self, job_id: str) -> str:
+    def delete_automl_job(self, job_id: str) -> Response:
         task_id = self._get_task_id(job_id)
         
         if task_id is None:
@@ -68,3 +84,15 @@ class GeneralController(BaseController):
             content="AutoML job deleted.",
             media_type="text/plain"
         )
+        
+    def _get_started_jobs(self) -> tuple:
+        keys, task_ids = self.data_store.get_keys_by_pattern(CELERY_KEY_PREFIX + "*")
+        started_job_ids = []
+        started_task_ids = []
+        
+        for task_id in task_ids:
+            if task_id != NOT_STARTED:
+                started_task_ids.append(task_id)
+                started_job_ids.append(keys[task_ids.index(task_id)].replace(CELERY_KEY_PREFIX, ""))
+        
+        return (started_job_ids, started_task_ids)

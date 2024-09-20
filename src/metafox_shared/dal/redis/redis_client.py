@@ -44,6 +44,25 @@ class RedisClient (IDataStore):
             
     def get_all_keys(self) -> list:
         return self.redis.keys("[^celeryid_]*") ### TODO: Fix regex pattern to match all keys (Now it has some issues)
+    
+    def get_keys_by_pattern(self, pattern: str) -> tuple:
+        # Initialize the cursor for SCAN. Start at 0
+        cursor = '0'
+        redis_keys = []
+        key_values = []
+
+        while cursor != 0:
+            # Use SCAN to find keys that match the pattern pattern
+            cursor, keys = self.redis.scan(cursor=cursor, match=pattern)
+
+            # Retrieve the values for the matched keys
+            for key in keys:
+                value = self.get(key)
+                
+                redis_keys.append(key)
+                key_values.append(value)
+
+        return (redis_keys, key_values)
             
     def generate_unique_job_key(self) -> str:
         unique_id = uuid.uuid4()
