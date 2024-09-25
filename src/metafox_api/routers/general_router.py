@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Response
+from fastapi import APIRouter, Response, Query, Path
 from fastapi_pagination import Page
 
 from metafox_shared.dal.redis.redis_client import RedisClient
@@ -38,5 +38,7 @@ async def prune_automl_jobs() -> Response:
     deprecated=False,
     response_description="Message"
 )
-async def delete_automl_job(job_id: str) -> Response:
+async def delete_automl_job(
+    job_id: str = Path(..., description='AutoML job ID')
+) -> Response:
     return controller.delete_automl_job(job_id)

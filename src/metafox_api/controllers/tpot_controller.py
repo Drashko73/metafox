@@ -121,7 +121,7 @@ class TPOTController(BaseController):
         if status[TASK_ID] == NOT_STARTED:
             return Response(
                 status_code=200,
-                content="AutoML job not started. Celery task id not set.",
+                content="AutoML job not started.",
                 media_type="text/plain"
             )
         

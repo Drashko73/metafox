@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Response
+from fastapi import APIRouter, Response, Path, Query
 
 from metafox_shared.constants.api_constants import LOG_LINES
 from metafox_shared.models.tpot_job import TPOTAutoMLJob
@@ -17,7 +17,9 @@ tpot_controller = TPOTController(data_store)
     deprecated=False,
     response_description="Id of the stored AutoML job and a message"
 )
-async def create_automl_job(body: TPOTAutoMLJob) -> Response:
+async def create_automl_job(
+    body: TPOTAutoMLJob
+) -> Response:
     return tpot_controller.create_automl_job(body)
 
 @router.post(
@@ -28,7 +30,9 @@ async def create_automl_job(body: TPOTAutoMLJob) -> Response:
     deprecated=False,
     response_description="Id of the AutoML job and a message"
 )
-async def start_automl_job(automl_job_id: str) -> Response:
+async def start_automl_job(
+    automl_job_id: str = Path(..., description="AutoML job Id")
+) -> Response:
     return tpot_controller.start_automl_job(automl_job_id)
 
 @router.post(
@@ -39,7 +43,9 @@ async def start_automl_job(automl_job_id: str) -> Response:
     deprecated=False,
     response_description="Id of the AutoML job and a message"
 )
-async def stop_automl_job(automl_job_id: str) -> Response:
+async def stop_automl_job(
+    automl_job_id: str = Path(..., description="AutoML job Id")
+) -> Response:
     return tpot_controller.stop_automl_job(automl_job_id)
 
 @router.post(
@@ -50,7 +56,9 @@ async def stop_automl_job(automl_job_id: str) -> Response:
     deprecated=False,
     response_description="Id of the AutoML job and a message"
 )
-async def save_model_bentoml(automl_job_id: str) -> Response:
+async def save_model_bentoml(
+    automl_job_id: str = Path(..., description="AutoML job Id")
+) -> Response:
     return tpot_controller.save_model_to_bentoml(automl_job_id)
 
 @router.get(
@@ -61,7 +69,9 @@ async def save_model_bentoml(automl_job_id: str) -> Response:
     deprecated=False,
     response_description="Id of the AutoML job and its details"
 )
-async def retrieve_job_details(automl_job_id: str) -> Response:
+async def retrieve_job_details(
+    automl_job_id: str = Path(..., description="AutoML job Id")
+) -> Response:
     return tpot_controller.retrieve_job_details(automl_job_id)
 
 @router.get(
@@ -72,7 +82,10 @@ async def retrieve_job_details(automl_job_id: str) -> Response:
     deprecated=False,
     response_description="Id of the AutoML job and its status"
 )
-async def retrieve_job_status(automl_job_id: str, lines: int = LOG_LINES) -> Response:
+async def retrieve_job_status(
+    automl_job_id: str = Path(..., description="AutoML job Id"),
+    lines: int = Query(LOG_LINES, description="Number of lines to retrieve", ge=0)
+) -> Response:
     return tpot_controller.retreive_job_status(automl_job_id, lines)
 
 @router.get(
@@ -83,7 +96,9 @@ async def retrieve_job_status(automl_job_id: str, lines: int = LOG_LINES) -> Res
     deprecated=True,
     response_description="Id of the AutoML job and its result"
 )
-async def retrieve_job_result(automl_job_id: str) -> Response:
+async def retrieve_job_result(
+    automl_job_id: str = Path(..., description="AutoML job Id")
+) -> Response:
     return tpot_controller.retrieve_job_result(automl_job_id)
 
 @router.get(
@@ -94,5 +109,7 @@ async def retrieve_job_result(automl_job_id: str) -> Response:
     deprecated=False,
     response_description="File containing the exported model",
 )
-async def export_model_bentoml(automl_job_id: str) -> Response:
+async def export_model_bentoml(
+    automl_job_id: str = Path(..., description="AutoML job Id")
+) -> Response:
     return tpot_controller.export_model_bentoml(automl_job_id)
