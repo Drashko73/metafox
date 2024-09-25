@@ -1,6 +1,7 @@
 import json
 
 from fastapi import Response
+from fastapi_pagination import Page, paginate
 from metafox_shared.constants.string_constants import *
 from metafox_shared.dal.idatastore import IDataStore
 from metafox_api.controllers.base_controller import BaseController
@@ -12,26 +13,22 @@ class GeneralController(BaseController):
     def __init__(self, data_store: IDataStore) -> None:
         super().__init__(data_store)
         
-    def retrieve_all_jobs(self) -> Response:
+    def retrieve_all_jobs(self) -> Page[dict]:
         keys = self.data_store.get_automl_job_ids()
-        response = {}
+        response = []
         
         for key in keys:
             celery_task = eval(self.data_store.get(CELERY_KEY_PREFIX + key))
             celery_task_id = celery_task[TASK_ID]
-            response[key] = {
+            response.append({key : {
                 TIMESTAMP_RECEIVED: celery_task[TIMESTAMP_RECEIVED],
                 TIMESTAMP_STARTED: celery_task[TIMESTAMP_STARTED],
                 TIMESTAMP_COMPLETED: celery_task[TIMESTAMP_COMPLETED],
                 HOSTNAME: celery_task[HOSTNAME],
                 FINISHED_STATUS: celery_task[FINISHED_STATUS]
-            }
+            }})
         
-        return Response(
-            status_code=200,
-            content=json.dumps(response),
-            media_type="application/json"
-        )
+        return paginate(response)
     
     def prune_automl_jobs(self) -> Response:
 

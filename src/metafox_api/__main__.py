@@ -2,6 +2,7 @@ import os
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, Depends
+from fastapi_pagination import add_pagination
 from metafox_api.auth import get_user_info
 from metafox_api.routers import tpot_router
 from metafox_api.routers import general_router
@@ -32,6 +33,8 @@ app.include_router(
     prefix=f"{api_prefix}/tpot",
     dependencies=[Depends(get_user_info)] if os.getenv("API_AUTH_ENABLED", "False") == "True" else []
 )
+
+add_pagination(app)
 
 if __name__ == "__main__":
     import uvicorn

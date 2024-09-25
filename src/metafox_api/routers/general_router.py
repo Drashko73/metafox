@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Response
+from fastapi_pagination import Page
 
 from metafox_shared.dal.redis.redis_client import RedisClient
 from metafox_api.controllers.general_controller import GeneralController
@@ -15,7 +16,7 @@ controller = GeneralController(data_store)
     deprecated=False,
     response_description="List of AutoML jobs"
 )
-async def retrieve_all_jobs() -> Response:
+async def retrieve_all_jobs() -> Page[dict]:
     return controller.retrieve_all_jobs()
 
 @router.delete(
