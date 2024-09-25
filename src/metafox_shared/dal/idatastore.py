@@ -23,7 +23,7 @@ class IDataStore(ABC):
         pass
     
     @abstractmethod
-    def get_all_keys(self) -> list:
+    def get_automl_job_ids(self) -> list:
         pass
     
     @abstractmethod

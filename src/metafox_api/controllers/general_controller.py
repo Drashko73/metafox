@@ -1,9 +1,10 @@
 import json
 
 from fastapi import Response
+from metafox_shared.constants.string_constants import *
 from metafox_shared.dal.idatastore import IDataStore
 from metafox_api.controllers.base_controller import BaseController
-from metafox_shared.constants.api_constants import CELERY_KEY_PREFIX, NOT_STARTED, CELERY_METAS_KEY_PREFIX
+from metafox_shared.constants.api_constants import *
 
 
 class GeneralController(BaseController):
@@ -12,12 +13,19 @@ class GeneralController(BaseController):
         super().__init__(data_store)
         
     def retrieve_all_jobs(self) -> Response:
-        keys = self.data_store.get_all_keys()
+        keys = self.data_store.get_automl_job_ids()
         response = {}
         
         for key in keys:
-            celery_task_id = self.data_store.get(CELERY_KEY_PREFIX + key)
-            response[key] = "TODO: Implement timestamp retrieval."
+            celery_task = eval(self.data_store.get(CELERY_KEY_PREFIX + key))
+            celery_task_id = celery_task[TASK_ID]
+            response[key] = {
+                TIMESTAMP_RECEIVED: celery_task[TIMESTAMP_RECEIVED],
+                TIMESTAMP_STARTED: celery_task[TIMESTAMP_STARTED],
+                TIMESTAMP_COMPLETED: celery_task[TIMESTAMP_COMPLETED],
+                HOSTNAME: celery_task[HOSTNAME],
+                FINISHED_STATUS: celery_task[FINISHED_STATUS]
+            }
         
         return Response(
             status_code=200,
@@ -86,13 +94,14 @@ class GeneralController(BaseController):
         )
         
     def _get_started_jobs(self) -> tuple:
-        keys, task_ids = self.data_store.get_keys_by_pattern(CELERY_KEY_PREFIX + "*")
+        keys, values = self.data_store.get_keys_by_pattern(CELERY_KEY_PREFIX + "*")
         started_job_ids = []
         started_task_ids = []
         
-        for task_id in task_ids:
+        for value in values:
+            task_id = eval(value)[TASK_ID]
             if task_id != NOT_STARTED:
                 started_task_ids.append(task_id)
-                started_job_ids.append(keys[task_ids.index(task_id)].replace(CELERY_KEY_PREFIX, ""))
+                started_job_ids.append(keys[values.index(value)].replace(CELERY_KEY_PREFIX, ""))
         
         return (started_job_ids, started_task_ids)

@@ -9,6 +9,7 @@ from metafox_shared.constants.string_constants import *
 from metafox_shared.dal.idatastore import IDataStore
 from metafox_shared.models.tpot_job import TPOTAutoMLJob
 from metafox_api.controllers.base_controller import BaseController
+from metafox_shared.models.celery_task import CeleryTaskInfo
 
 class TPOTController(BaseController):
     
@@ -29,8 +30,17 @@ class TPOTController(BaseController):
                 media_type="text/plain"
             )
         
+        celery_task = CeleryTaskInfo(
+            task_id=NOT_STARTED,
+            timestamp_received="",
+            timestamp_started="",
+            timestamp_completed="",
+            hostname='',
+            finished_status=''
+        )
+        
         try:
-            self.data_store.set(CELERY_KEY_PREFIX + id, NOT_STARTED)    # Set celery task id to NOT_STARTED
+            self.data_store.set(CELERY_KEY_PREFIX + id, celery_task.__str__())    # Set celery task id to NOT_STARTED
         except Exception as e:
             return Response(
                 status_code=500, 
@@ -72,8 +82,17 @@ class TPOTController(BaseController):
         
         result = self.celery.send_task('metafox_worker.tasks.start_training.start_automl_train', [{"details": job_details, "id": automl_job_id}])
         
+        celery_task = CeleryTaskInfo(
+            task_id=result.id,
+            timestamp_received="",
+            timestamp_started="",
+            timestamp_completed="",
+            hostname='',
+            finished_status=''
+        )
+        
         try:
-            self.data_store.update(CELERY_KEY_PREFIX + automl_job_id, result.id)  # Update celery task id status to the task id
+            self.data_store.update(CELERY_KEY_PREFIX + automl_job_id, celery_task.__str__())  # Update celery task id status to the task id
         except Exception as e:
             return Response(
                 status_code=500, 
@@ -97,14 +116,16 @@ class TPOTController(BaseController):
                 media_type="text/plain"
             )
         
-        if status == NOT_STARTED:
+        status = eval(status)
+        
+        if status[TASK_ID] == NOT_STARTED:
             return Response(
                 status_code=200,
                 content="AutoML job not started. Celery task id not set.",
                 media_type="text/plain"
             )
         
-        self.celery.control.terminate(task_id=status, signal="SIGQUIT")
+        self.celery.control.terminate(task_id=status[TASK_ID], signal="SIGQUIT")
         
         return Response(
             status_code=200,
@@ -122,14 +143,15 @@ class TPOTController(BaseController):
                 media_type="text/plain"
             )
         
-        if status == NOT_STARTED:
+        status = eval(status)
+        if status[TASK_ID] == NOT_STARTED:
             return Response(
                 status_code=200,
                 content="AutoML job not started. Celery task id not set.",
                 media_type="text/plain"
             )
         
-        res = self.celery.AsyncResult(status)
+        res = self.celery.AsyncResult(status[TASK_ID])
         if res.ready():
             if res.state == states.FAILURE:
                 return Response(
@@ -194,14 +216,15 @@ class TPOTController(BaseController):
                 media_type="text/plain"
             )
         
-        if status == NOT_STARTED:
+        status = eval(status)
+        if status[TASK_ID] == NOT_STARTED:
             return Response(
                 status_code=200,
                 content="AutoML job not started. Celery task id not set.",
                 media_type="text/plain"
             )
         
-        job = self.celery.AsyncResult(status)
+        job = self.celery.AsyncResult(status[TASK_ID])
         
         logs = "".join(job.info["logs"][-lines:]) if job.info and "logs" in job.info else ""
         
@@ -228,14 +251,15 @@ class TPOTController(BaseController):
                 media_type="text/plain"
             )
         
-        if status == NOT_STARTED:
+        status = eval(status)
+        if status[TASK_ID] == NOT_STARTED:
             return Response(
                 status_code=200, 
                 content="AutoML job not started. Celery task id not set.", 
                 media_type="text/plain"
             )
         
-        res = self.celery.AsyncResult(status)
+        res = self.celery.AsyncResult(status[TASK_ID])
         if res.ready():
             if res.state == states.FAILURE:
                 return Response(
@@ -266,14 +290,15 @@ class TPOTController(BaseController):
                 media_type="text/plain"
             )
         
-        if status == NOT_STARTED:
+        status = eval(status)
+        if status[TASK_ID] == NOT_STARTED:
             return Response(
                 status_code=200,
                 content="AutoML job not started. Celery task id not set.",
                 media_type="text/plain"
             )
         
-        res = self.celery.AsyncResult(status)
+        res = self.celery.AsyncResult(status[TASK_ID])
         if res.ready():
             if res.state == states.FAILURE:
                 return Response(

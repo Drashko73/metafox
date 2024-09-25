@@ -1,6 +1,7 @@
 from metafox_shared.dal.idatastore import IDataStore
 from celery import Celery
 from metafox_shared.constants.api_constants import CELERY_KEY_PREFIX
+from metafox_shared.constants.string_constants import TASK_ID
 
 class BaseController:
     
@@ -11,7 +12,7 @@ class BaseController:
         
     def _get_task_id(self, automl_job_id: str) -> str:
         try:
-            return self.data_store.get(CELERY_KEY_PREFIX + automl_job_id)
+            return eval(self.data_store.get(CELERY_KEY_PREFIX + automl_job_id))[TASK_ID]
         except Exception as e:
             return None
         

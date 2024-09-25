@@ -5,6 +5,7 @@ from redis import Redis
 from datetime import datetime
 from dotenv import load_dotenv
 from metafox_shared.dal.idatastore import IDataStore
+from metafox_shared.constants.api_constants import *
 
 class RedisClient (IDataStore):
     def __init__(self) -> None:
@@ -42,20 +43,27 @@ class RedisClient (IDataStore):
         
         raise Exception(f"Key {key} does not exist.")
             
-    def get_all_keys(self) -> list:
-        return self.redis.keys("[^celeryid_]*") ### TODO: Fix regex pattern to match all keys (Now it has some issues)
-    
+    def get_automl_job_ids(self) -> list:
+        cursor = '0'
+        matching_keys = []
+        
+        while cursor != 0:
+            cursor, keys = self.redis.scan(cursor = cursor)
+            
+            for key in keys:
+                if not key.startswith(CELERY_KEY_PREFIX) and not key.startswith(CELERY_METAS_KEY_PREFIX):
+                    matching_keys.append(key)
+                    
+        return matching_keys
+        
     def get_keys_by_pattern(self, pattern: str) -> tuple:
-        # Initialize the cursor for SCAN. Start at 0
         cursor = '0'
         redis_keys = []
         key_values = []
 
         while cursor != 0:
-            # Use SCAN to find keys that match the pattern pattern
             cursor, keys = self.redis.scan(cursor=cursor, match=pattern)
-
-            # Retrieve the values for the matched keys
+            
             for key in keys:
                 value = self.get(key)
                 
