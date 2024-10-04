@@ -226,14 +226,14 @@ class TPOTController(BaseController):
         
         job = self.celery.AsyncResult(status[TASK_ID])
         
-        logs = "".join(job.info["logs"][-lines:]) if job.info and "logs" in job.info else ""
-        
         if job.state == states.FAILURE:
             return Response(
                 status_code=200,
-                content=json.dumps({"status": job.state, "logs": logs, "traceback": job.traceback}),
+                content=json.dumps({"status": job.state, "logs": "", "traceback": job.traceback}),
                 media_type="application/json"
             )
+        
+        logs = "".join(job.info["logs"][-lines:]) if job.info and "logs" in job.info else ""
         
         return Response(
             status_code=200,
