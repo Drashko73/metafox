@@ -2,6 +2,7 @@ import os
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, Depends
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi_pagination import add_pagination
 from metafox_api.auth import get_user_info
 from metafox_api.routers import tpot_router
@@ -35,6 +36,19 @@ app.include_router(
 )
 
 add_pagination(app)
+
+origins = os.getenv("API_ORIGINS", "*").split(",")
+allow_credentials = os.getenv("API_ALLOW_CREDENTIALS", "True") == "True"
+allow_methods = os.getenv("API_ALLOW_METHODS", "*").split(",")
+allow_headers = os.getenv("API_ALLOW_HEADERS", "*").split(",")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=allow_credentials,
+    allow_methods=allow_methods,
+    allow_headers=allow_headers
+)
 
 if __name__ == "__main__":
     import uvicorn
