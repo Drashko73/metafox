@@ -44,7 +44,7 @@ class TPOTController(BaseController):
         except Exception as e:
             return Response(
                 status_code=500, 
-                content="Error saving celery task id.", 
+                content="Error saving AutoML job details.", 
                 media_type="text/plain"
             )
             
@@ -61,7 +61,7 @@ class TPOTController(BaseController):
         if task_id is None:
             return Response(
                 status_code=404, 
-                content="Could not find task id for the AutoML job.", 
+                content="Could not find required data for the AutoML job.", 
                 media_type="text/plain"
             )
         
@@ -96,7 +96,7 @@ class TPOTController(BaseController):
         except Exception as e:
             return Response(
                 status_code=500, 
-                content="Error saving celery task id.", 
+                content="Error saving AutoML job details.", 
                 media_type="text/plain"
             )
         
@@ -112,7 +112,7 @@ class TPOTController(BaseController):
         except Exception as e:
             return Response(
                 status_code=404,
-                content="Celery task id not found.",
+                content="Required AutoML job details not found.",
                 media_type="text/plain"
             )
         
@@ -139,7 +139,7 @@ class TPOTController(BaseController):
         except Exception as e:
             return Response(
                 status_code=404,
-                content="Celery task id not found.",
+                content="Required AutoML job details not found.",
                 media_type="text/plain"
             )
         
@@ -147,7 +147,7 @@ class TPOTController(BaseController):
         if status[TASK_ID] == NOT_STARTED:
             return Response(
                 status_code=200,
-                content="AutoML job not started. Celery task id not set.",
+                content="AutoML job not started.",
                 media_type="text/plain"
             )
         
@@ -212,7 +212,7 @@ class TPOTController(BaseController):
         except Exception as e:
             return Response(
                 status_code=404,
-                content="Celery task id not found.",
+                content="Required AutoML job details not found.",
                 media_type="text/plain"
             )
         
@@ -220,7 +220,7 @@ class TPOTController(BaseController):
         if status[TASK_ID] == NOT_STARTED:
             return Response(
                 status_code=200,
-                content="AutoML job not started. Celery task id not set.",
+                content="AutoML job not started.",
                 media_type="text/plain"
             )
         
@@ -247,7 +247,7 @@ class TPOTController(BaseController):
         except Exception as e:
             return Response(
                 status_code=404, 
-                content="Celery task id not found.", 
+                content="Required AutoML job details not found.", 
                 media_type="text/plain"
             )
         
@@ -255,7 +255,7 @@ class TPOTController(BaseController):
         if status[TASK_ID] == NOT_STARTED:
             return Response(
                 status_code=200, 
-                content="AutoML job not started. Celery task id not set.", 
+                content="AutoML job not started.", 
                 media_type="text/plain"
             )
         
@@ -286,7 +286,7 @@ class TPOTController(BaseController):
         except Exception as e:
             return Response(
                 status_code=404,
-                content="Celery task id not found.",
+                content="Required AutoML job details not found.",
                 media_type="text/plain"
             )
         
@@ -294,7 +294,7 @@ class TPOTController(BaseController):
         if status[TASK_ID] == NOT_STARTED:
             return Response(
                 status_code=200,
-                content="AutoML job not started. Celery task id not set.",
+                content="AutoML job not started.",
                 media_type="text/plain"
             )
         
