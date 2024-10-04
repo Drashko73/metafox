@@ -8,7 +8,7 @@ import pandas as pd
 import celery.result
 
 from time import sleep
-from celery import Task
+from celery import Task, states
 from celery.signals import task_received, task_prerun, task_postrun
 from metafox_worker.main import app
 from metafox_shared.constants.worker_constants import *
@@ -26,6 +26,14 @@ def get_current_date() -> str:
 @task_received.connect
 def task_received_handler(sender, request, **kwargs):
     date_received = get_current_date()
+    
+    celery.Task.update_state(
+        request.task,
+        state=states.RECEIVED,
+        task_id=request.task_id,
+        meta={"logs": []}
+    )
+    
     hostname = request.hostname
     key = CELERY_KEY_PREFIX + request.args[0][ID]
     
@@ -39,6 +47,13 @@ def task_received_handler(sender, request, **kwargs):
 @task_prerun.connect
 def task_prerun_handler(sender, task_id, task, **kwargs):
     date_started = get_current_date()
+    
+    celery.Task.update_state(
+        task,
+        state=states.STARTED,
+        task_id=task_id,
+        meta={"logs": []}
+    )
     
     if 'args' in kwargs:
         key = CELERY_KEY_PREFIX + kwargs['args'][0][ID]
@@ -71,7 +86,7 @@ def observe_logs(task: Task, job_id: str, task_id: str) -> None:
                 
                 celery.Task.update_state(
                     task,
-                    state="PENDING",
+                    state=states.STARTED,
                     task_id=task_id,
                     meta={"logs": logs}
                 )
@@ -85,7 +100,7 @@ def observe_logs(task: Task, job_id: str, task_id: str) -> None:
             
             celery.Task.update_state(
                 task,
-                state="PENDING",
+                state=states.STARTED,
                 task_id=task_id,
                 meta={"logs": logs}
             )
