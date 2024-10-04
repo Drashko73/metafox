@@ -45,6 +45,7 @@ services:
       - API_ALLOW_CREDENTIALS=True
       - API_ALLOW_METHODS=*
       - API_ALLOW_HEADERS=*
+      - RESULT_EXPIRES=0
     ports:
       - "8000:8000"
     depends_on:
@@ -66,6 +67,7 @@ services:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - REDIS_DB=0
+      - RESULT_EXPIRES=0
     depends_on:
       - api
       - rabbitmq
@@ -81,6 +83,9 @@ services:
     environment:
       - BROKER_URL=pyamqp://rabbitmq:5672//
       - RESULT_BACKEND=redis://redis:6379/0
+      - FLOWER_PERSISTENT=True
+      - FLOWER_STATE_SAVE_INTERVAL=10000
+      - FLOWER_DB=flower_db
     ports:
       - "5555:5555"
     depends_on:
