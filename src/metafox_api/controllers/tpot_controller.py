@@ -307,6 +307,16 @@ class TPOTController(BaseController):
                     media_type="application/json"
                 )
             
+            pipeline_bytes = res.get()["model"]
+            response = self._save_pipeline_to_bentoml(pipeline_bytes, automl_job_id)
+            
+            if response != OK:
+                return Response(
+                    status_code=500,
+                    content=json.dumps({"traceback": response}),
+                    media_type="application/json"
+                )
+            
             # Return the saved model file saved in metafox_api/bento_models
             filepath = "metafox_api/bento_models/" + automl_job_id + ".bentomodel"
             

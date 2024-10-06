@@ -53,7 +53,7 @@ async def stop_automl_job(
     tags=["TPOT to BentoML"],
     summary="Post method for saving a model using BentoML",
     description="Save a model using BentoML",
-    deprecated=False,
+    deprecated=True,
     response_description="Id of the AutoML job and a message"
 )
 async def save_model_bentoml(
