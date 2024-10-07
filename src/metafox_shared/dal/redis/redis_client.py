@@ -51,8 +51,8 @@ class RedisClient (IDataStore):
             cursor, keys = self.redis.scan(cursor = cursor)
             
             for key in keys:
-                if not key.startswith(CELERY_KEY_PREFIX) and not key.startswith(CELERY_METAS_KEY_PREFIX):
-                    matching_keys.append(key)
+                if key.startswith(CELERY_KEY_PREFIX):
+                    matching_keys.append(key.replace(CELERY_KEY_PREFIX, ""))
                     
         return matching_keys
         
