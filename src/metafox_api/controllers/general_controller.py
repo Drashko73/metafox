@@ -64,9 +64,12 @@ class GeneralController(BaseController):
             )
             
         if task_id == NOT_STARTED:
+            self.data_store.delete(CELERY_KEY_PREFIX + job_id)
+            self.data_store.delete(job_id)
+            
             return Response(
-                status_code=400,
-                content="Cannot delete AutoML job that has not started.",
+                status_code=200,
+                content="AutoML job deleted.",
                 media_type="text/plain"
             )
         
