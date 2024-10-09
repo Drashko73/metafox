@@ -83,7 +83,8 @@ class TPOTAutoMLJob(AutoMLJob):
             CONFIG_DICT: self.config_dict,
             TEMPLATE: self.template,
             EARLY_STOP: self.early_stop,
-            AUTOML_LIBRARY: TPOT
+            AUTOML_LIBRARY: TPOT,
+            TIMESTAMP_JOB_CREATED: self.timestamp_job_created
         }
         
     def __str__(self) -> str:

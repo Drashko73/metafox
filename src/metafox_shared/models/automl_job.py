@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Annotated, Optional
 from pydantic import BaseModel, Field, field_validator
+from datetime import datetime
 
 class AutoMLJob(BaseModel, ABC):
     job_name: Annotated[Optional[str], Field(
@@ -15,6 +16,10 @@ class AutoMLJob(BaseModel, ABC):
     )]
     problem_type: Annotated[str, Field(
         description="Problem type"
+    )]
+    timestamp_job_created: Annotated[datetime, Field(
+        default_factory=datetime.utcnow,
+        description="Timestamp when the job was created"
     )]
     
     @abstractmethod

@@ -20,14 +20,21 @@ class GeneralController(BaseController):
         for key in keys:
             celery_task = eval(self.data_store.get(CELERY_KEY_PREFIX + key))
             celery_task_id = celery_task[TASK_ID]
-            response.append({key : {
-                TIMESTAMP_RECEIVED: celery_task[TIMESTAMP_RECEIVED],
-                TIMESTAMP_STARTED: celery_task[TIMESTAMP_STARTED],
-                TIMESTAMP_COMPLETED: celery_task[TIMESTAMP_COMPLETED],
-                HOSTNAME: celery_task[HOSTNAME],
-                FINISHED_STATUS: celery_task[FINISHED_STATUS]
-            }})
+
+            job_detail = eval(self.data_store.get(key))
+            response.append({
+                key: {
+                    JOB_NAME: job_detail[JOB_NAME],
+                    TIMESTAMP_JOB_CREATED: job_detail[TIMESTAMP_JOB_CREATED],
+                    TIMESTAMP_RECEIVED: celery_task[TIMESTAMP_RECEIVED],
+                    TIMESTAMP_STARTED: celery_task[TIMESTAMP_STARTED],
+                    TIMESTAMP_COMPLETED: celery_task[TIMESTAMP_COMPLETED],
+                    HOSTNAME: celery_task[HOSTNAME],
+                    FINISHED_STATUS: celery_task[FINISHED_STATUS]
+                }
+            })
         
+        response.sort(key=lambda job: list(job.values())[0][TIMESTAMP_JOB_CREATED])
         return paginate(response)
     
     def prune_automl_jobs(self) -> Response:
