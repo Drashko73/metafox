@@ -17,11 +17,11 @@ class RedisClient (IDataStore):
             decode_responses=True,
         )
         
-    def set(self, key: str, value: str) -> None:
+    def set(self, key: str, value: str, ex: int = None) -> None:
         if self.redis.exists(key):
             raise Exception(f"Key {key} already exists.")
         
-        self.redis.set(key, value)
+        self.redis.set(key, value, ex=ex)
         
     def get(self, key: str) -> str:
         if self.redis.exists(key):

@@ -35,10 +35,10 @@ result_serializer = os.getenv(
     default='json'
 )
 
-result_expires = os.getenv(
+result_expires = int(os.getenv(
     key='RESULT_EXPIRES',
     default=0 # Never expire
-)
+))
 
 # Set the number of concurrent tasks a worker can execute
 worker_concurrency = int(os.getenv(
