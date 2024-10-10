@@ -34,7 +34,7 @@ class GeneralController(BaseController):
                 }
             })
         
-        response.sort(key=lambda job: list(job.values())[0][TIMESTAMP_JOB_CREATED])
+        response.sort(key=lambda job: list(job.values())[0][TIMESTAMP_JOB_CREATED], reverse=True)
         return paginate(response)
     
     def prune_automl_jobs(self) -> Response:
