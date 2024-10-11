@@ -25,7 +25,7 @@ class GeneralController(BaseController):
             response.append({
                 key: {
                     JOB_NAME: job_detail[JOB_NAME],
-                    TIMESTAMP_JOB_CREATED: job_detail[TIMESTAMP_JOB_CREATED],
+                    TIMESTAMP_CREATED: job_detail[TIMESTAMP_CREATED],
                     TIMESTAMP_RECEIVED: celery_task[TIMESTAMP_RECEIVED],
                     TIMESTAMP_STARTED: celery_task[TIMESTAMP_STARTED],
                     TIMESTAMP_COMPLETED: celery_task[TIMESTAMP_COMPLETED],
@@ -34,7 +34,7 @@ class GeneralController(BaseController):
                 }
             })
         
-        response.sort(key=lambda job: list(job.values())[0][TIMESTAMP_JOB_CREATED], reverse=True)
+        response.sort(key=lambda job: list(job.values())[0][TIMESTAMP_CREATED], reverse=True)
         return paginate(response)
     
     def prune_automl_jobs(self) -> Response:

@@ -10,16 +10,14 @@ from metafox_shared.dal.idatastore import IDataStore
 from metafox_shared.models.tpot_job import TPOTAutoMLJob
 from metafox_api.controllers.base_controller import BaseController
 from metafox_shared.models.celery_task import CeleryTaskInfo
-from datetime import datetime
-
+from metafox_shared.utilis import get_current_date
 class TPOTController(BaseController):
     
     def __init__(self, data_store: IDataStore) -> None:
         super().__init__(data_store)
         
     def create_automl_job(self, body: TPOTAutoMLJob) -> Response:
-        timestamp_job_created = datetime.now().isoformat()
-        body.timestamp_job_created = timestamp_job_created
+        body.timestamp_created = get_current_date()
         job_details = body.__str__()
 
 

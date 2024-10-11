@@ -15,13 +15,11 @@ from metafox_shared.constants.worker_constants import *
 from metafox_shared.constants.string_constants import *
 from metafox_shared.constants.api_constants import *
 from metafox_shared.dal.redis.redis_client import RedisClient
+from metafox_shared.utilis import get_current_date
 
 stop_event = threading.Event()
 logs_dictionary = {}
 redis = RedisClient()
-
-def get_current_date() -> str:
-    return datetime.datetime.now(datetime.timezone.utc).replace(microsecond=0, tzinfo=None).isoformat() + " UTC"
 
 @task_received.connect
 def task_received_handler(sender, request, **kwargs):
