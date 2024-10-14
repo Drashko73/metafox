@@ -25,7 +25,7 @@ class GeneralController(BaseController):
             response.append({
                 key: {
                     JOB_NAME: job_detail[JOB_NAME],
-                    TIMESTAMP_CREATED: job_detail[TIMESTAMP_CREATED],
+                    TIMESTAMP_CREATED: celery_task[TIMESTAMP_CREATED],
                     TIMESTAMP_RECEIVED: celery_task[TIMESTAMP_RECEIVED],
                     TIMESTAMP_STARTED: celery_task[TIMESTAMP_STARTED],
                     TIMESTAMP_COMPLETED: celery_task[TIMESTAMP_COMPLETED],

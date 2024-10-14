@@ -17,9 +17,7 @@ class TPOTController(BaseController):
         super().__init__(data_store)
         
     def create_automl_job(self, body: TPOTAutoMLJob) -> Response:
-        body.timestamp_created = get_current_date()
         job_details = body.__str__()
-
 
         id = self.data_store.generate_unique_job_key()
         
@@ -34,6 +32,7 @@ class TPOTController(BaseController):
         
         celery_task = CeleryTaskInfo(
             task_id=NOT_STARTED,
+            timestamp_created=get_current_date(),
             timestamp_received="",
             timestamp_started="",
             timestamp_completed="",
@@ -82,16 +81,10 @@ class TPOTController(BaseController):
                 media_type="text/plain"
             )
         
-        result = self.celery.send_task('metafox_worker.tasks.start_training.start_automl_train', [{"details": job_details, "id": automl_job_id}])
+        result = self.celery.send_task('metafox_worker.tasks.start_training.start_automl_train', [{DETAILS: job_details, ID: automl_job_id}])
         
-        celery_task = CeleryTaskInfo(
-            task_id=result.id,
-            timestamp_received="",
-            timestamp_started="",
-            timestamp_completed="",
-            hostname='',
-            finished_status=''
-        )
+        celery_task = eval(self.data_store.get(CELERY_KEY_PREFIX + automl_job_id))
+        celery_task[TASK_ID] = result.id
         
         try:
             self.data_store.update(CELERY_KEY_PREFIX + automl_job_id, celery_task.__str__())  # Update celery task id status to the task id
