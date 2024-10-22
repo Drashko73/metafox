@@ -176,6 +176,15 @@ def start_automl_train(self, config: object) -> dict:
         else:
             from metafox_worker.automl.tpot_classifier import TPOTClassifierWrapper
             
+            if not os.path.exists("metafox_worker/logs/"):
+                os.makedirs("metafox_worker/logs/") # Create logs directory if it doesn't exist
+                
+            if not os.path.exists("metafox_worker/checkpoints/"):
+                os.makedirs("metafox_worker/checkpoints/")  # Create checkpoints directory if it doesn't exist
+                
+            if not os.path.exists("metafox_worker/exported_models/"):
+                os.makedirs("metafox_worker/exported_models/")  # Create exported models directory if it doesn't exist
+            
             try:
                 model = TPOTClassifierWrapper(
                     n_jobs=N_JOBS_TPOT,
