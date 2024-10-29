@@ -349,6 +349,12 @@ class TPOTController(BaseController):
             os.makedirs("metafox_api/bento_models/")
             
         bento_path = "metafox_api/bento_models/" + str(job_id)
+        
+        # Check if the file already exists. 
+        # If it does, return OK (No need to save it to the bento store again)
+        if os.path.exists(bento_path + ".bentomodel"):
+            return OK
+        
         bento_tag = bentoml.Tag(
             name=str(job_id),
             version="1.0.0"
