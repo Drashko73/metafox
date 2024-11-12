@@ -31,7 +31,7 @@ async def prune_automl_jobs() -> Response:
     return controller.prune_automl_jobs()
 
 @router.delete(
-    path="/job/{job_id}",
+    path="/job/{automl_job_id}",
     tags=["MetaFOX API"],
     summary="Delete method for deleting a specific AutoML job",
     description="Delete a specific AutoML job",
@@ -39,6 +39,6 @@ async def prune_automl_jobs() -> Response:
     response_description="Message"
 )
 async def delete_automl_job(
-    job_id: str = Path(..., description='AutoML job ID')
+    automl_job_id: str = Path(..., description='AutoML job ID')
 ) -> Response:
-    return controller.delete_automl_job(job_id)
+    return controller.delete_automl_job(automl_job_id)
