@@ -297,8 +297,11 @@ class TPOTController(BaseController):
         if res.ready():
             if res.state == states.FAILURE:
                 return Response(
-                    status_code=500,
-                    content=json.dumps({"traceback": res.traceback}),
+                    status_code=404,
+                    content=json.dumps({
+                        "message": "Optimization failed. Model not found.",
+                        "traceback": res.traceback
+                    }),
                     media_type="application/json"
                 )
             
