@@ -1,3 +1,4 @@
+import re
 import os
 import json
 import pickle
@@ -224,15 +225,29 @@ class TPOTController(BaseController):
         if job.state == states.FAILURE:
             return Response(
                 status_code=200,
-                content=json.dumps({"status": job.state, "logs": "", "traceback": job.traceback}),
+                content=json.dumps({
+                    "status": job.state,
+                    "fitness": "",
+                    "logs": "",
+                    "traceback": job.traceback
+                }),
                 media_type="application/json"
             )
         
-        logs = "".join(job.info["logs"][-lines:]) if job.info and "logs" in job.info else ""
+        if job.info and "logs" in job.info:
+            fitness = self._extract_fitness_from_logs("".join(job.info["logs"]))
+            logs = "".join(job.info["logs"][-lines:])
+        else:
+            fitness = ""
+            logs = ""
         
         return Response(
             status_code=200,
-            content=json.dumps({"status": job.state, "logs": logs}),
+            content=json.dumps({
+                "status": job.state,
+                "fitness": fitness,
+                "logs": logs
+            }),
             media_type="application/json"
         )
     
@@ -380,3 +395,10 @@ class TPOTController(BaseController):
             return str(e)
         
         return OK
+    
+    def _extract_fitness_from_logs(self, logs: str) -> str:
+        pattern = r"Generation \d+ - Current best internal CV score: -?\d+\.\d+"
+        
+        matches = re.findall(pattern, logs)
+        
+        return "" if len(matches) == 0 else "\n".join(matches)
