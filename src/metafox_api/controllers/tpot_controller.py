@@ -180,6 +180,13 @@ class TPOTController(BaseController):
     
     def retrieve_job_details(self, automl_job_id: str) -> Response:
         
+        if automl_job_id.startswith(CELERY_KEY_PREFIX) or automl_job_id.startswith(CELERY_METAS_KEY_PREFIX):
+            return Response(
+                status_code=400,
+                content="Invalid AutoML job id.",
+                media_type="text/plain"
+            )
+        
         job_details = self._get_automl_job_details(automl_job_id)
         
         if job_details is None:    
