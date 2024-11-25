@@ -8,9 +8,13 @@ router = APIRouter()
 data_store = RedisClient()
 controller = GeneralController(data_store)
 
+# ==============================
+# MetaFOX API
+# ==============================
+
 @router.get(
     path="/jobs",
-    tags=["MetaFOX API"],
+    tags=["general-operations"],
     summary="Get method for retrieving all AutoML jobs",
     description="Retrieve all AutoML jobs",
     deprecated=False,
@@ -21,7 +25,7 @@ async def retrieve_all_jobs() -> Page[dict]:
 
 @router.delete(
     path="/job/prune",
-    tags=["MetaFOX API"],
+    tags=["general-operations"],
     summary="Delete method for pruning completed AutoML jobs",
     description="Prune completed AutoML jobs",
     deprecated=False,
@@ -32,7 +36,7 @@ async def prune_automl_jobs() -> Response:
 
 @router.delete(
     path="/job/{automl_job_id}",
-    tags=["MetaFOX API"],
+    tags=["general-operations"],
     summary="Delete method for deleting a specific AutoML job",
     description="Delete a specific AutoML job",
     deprecated=False,
