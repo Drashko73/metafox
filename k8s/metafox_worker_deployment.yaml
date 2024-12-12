@@ -1,0 +1,47 @@
+# filepath: /home/drashko/CERAMO/metafox/k8s/metafox_worker_deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: metafox-worker
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: metafox-worker
+  template:
+    metadata:
+      labels:
+        app: metafox-worker
+    spec:
+      containers:
+      - name: metafox-worker
+        image: drashkko/metafox-worker:v1.0.0
+        env:
+        - name: BROKER_URL
+          value: "pyamqp://rabbitmq:5672//"
+        - name: RESULT_BACKEND
+          value: "redis://redis:6379/0"
+        - name: TASK_SERIALIZER
+          value: "json"
+        - name: RESULT_SERIALIZER
+          value: "json"
+        - name: WORKER_CONCURRENCY
+          value: "1"
+        - name: REDIS_HOST
+          value: "redis"
+        - name: REDIS_PORT
+          value: "6379"
+        - name: REDIS_DB
+          value: "0"
+        - name: RESULT_EXPIRES
+          value: "0"
+        - name: PYTHONPATH
+          value: "/usr/src"
+        volumeMounts:
+        - name: metafox-shared
+          mountPath: /usr/src/metafox_shared
+      volumes:
+      - name: metafox-shared
+        hostPath:
+          path: /mnt/metafox_shared
+          type: Directory

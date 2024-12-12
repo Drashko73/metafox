@@ -1,0 +1,12 @@
+# k8s/metafox_worker_service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: metafox-worker-service
+spec:
+  selector:
+    app: metafox-worker
+  ports:
+    - protocol: TCP
+      port: 8000
+      targetPort: 8000

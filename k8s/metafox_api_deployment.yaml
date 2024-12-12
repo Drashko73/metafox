@@ -1,0 +1,73 @@
+# filepath: /home/drashko/CERAMO/metafox/k8s/metafox_api_deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: metafox-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: metafox-api
+  template:
+    metadata:
+      labels:
+        app: metafox-api
+    spec:
+      containers:
+      - name: metafox-api
+        image: drashkko/metafox-api:v1.0.1
+        ports:
+        - containerPort: 8000
+        env:
+        - name: API_NAME
+          value: "MetaFOX"
+        - name: API_VERSION
+          value: "1.0.0"
+        - name: API_HOST
+          value: "0.0.0.0"
+        - name: API_PORT
+          value: "8000"
+        - name: API_PREFIX
+          value: "/metafox"
+        - name: API_DOCS_URL
+          value: "/metafox/docs"
+        - name: API_REDOC_URL
+          value: "/metafox/redoc"
+        - name: BROKER_URL
+          value: "pyamqp://rabbitmq:5672//"
+        - name: RESULT_BACKEND
+          value: "redis://redis:6379/0"
+        - name: TASK_SERIALIZER
+          value: "json"
+        - name: RESULT_SERIALIZER
+          value: "json"
+        - name: WORKER_CONCURRENCY
+          value: "1"
+        - name: REDIS_HOST
+          value: "redis"
+        - name: REDIS_PORT
+          value: "6379"
+        - name: REDIS_DB
+          value: "0"
+        - name: RESULT_EXPIRES
+          value: "0"
+        - name: API_AUTH_ENABLED
+          value: "False"
+        - name: API_ORIGINS
+          value: "*"
+        - name: API_ALLOW_CREDENTIALS
+          value: "True"
+        - name: API_ALLOW_METHODS
+          value: "*"
+        - name: API_ALLOW_HEADERS
+          value: "*"
+        - name: PYTHONPATH
+          value: "/usr/src"
+        volumeMounts:
+        - name: metafox-shared
+          mountPath: /usr/src/metafox_shared
+      volumes:
+      - name: metafox-shared
+        hostPath:
+          path: /mnt/metafox_shared
+          type: Directory

@@ -1,0 +1,14 @@
+# k8s/metafox_api_service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: metafox-api-service
+spec:
+  selector:
+    app: metafox-api
+  ports:
+    - protocol: TCP
+      port: 8000
+      targetPort: 8000
+      nodePort: 30001
+  type: NodePort
