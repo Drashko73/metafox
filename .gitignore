@@ -169,3 +169,6 @@ src/metafox_worker/logs/
 
 # Exported models directory
 src/metafox_worker/exported_models/
+
+# Idea directory
+.idea/
