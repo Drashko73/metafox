@@ -8,9 +8,9 @@ from celery import states
 from metafox_shared.constants.api_constants import *
 from metafox_shared.constants.string_constants import *
 from metafox_shared.dal.idatastore import IDataStore
-from metafox_shared.models.tpot_job import TPOTAutoMLJob
+from metafox_api.models.tpot_job import TPOTAutoMLJob
 from metafox_api.controllers.base_controller import BaseController
-from metafox_shared.models.celery_task import CeleryTaskInfo
+from metafox_api.models.celery_task import CeleryTaskInfo
 from metafox_shared.utilis import get_current_date
 class TPOTController(BaseController):
     """

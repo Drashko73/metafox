@@ -5,7 +5,7 @@ from fastapi.security import OAuth2AuthorizationCodeBearer
 from keycloak import KeycloakOpenID
 from dotenv import load_dotenv
 
-from metafox_shared.models.user import User
+from metafox_api.models.user import User
 from metafox_shared.constants.string_constants import *
 
 load_dotenv()

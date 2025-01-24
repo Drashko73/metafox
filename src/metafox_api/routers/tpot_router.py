@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Response, Path, Query
 
 from metafox_shared.constants.api_constants import LOG_LINES
-from metafox_shared.models.tpot_job import TPOTAutoMLJob
+from metafox_api.models.tpot_job import TPOTAutoMLJob
 from metafox_shared.dal.redis.redis_client import RedisClient
 from metafox_api.controllers.tpot_controller import TPOTController
 

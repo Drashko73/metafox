@@ -1,6 +1,6 @@
 from pydantic import Field, field_validator
 from typing import Union, Dict, Annotated, Optional
-from metafox_shared.models.automl_job import AutoMLJob
+from metafox_api.models.automl_job import AutoMLJob
 from metafox_shared.constants.string_constants import *
 from metafox_shared.constants.worker_constants import TPOT, AVAILABLE_CONFIG_DICTS
 from metafox_shared.constants.default_value_constants import *
