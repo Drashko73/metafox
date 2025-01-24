@@ -1,5 +1,4 @@
 name: MetaFOX
-version: '3.8'
 
 services:
   rabbitmq:
@@ -50,9 +49,9 @@ services:
         KEYCLOAK_TOKEN_URL:
         KEYCLOAK_REFRESH_URL:
         CORS_ORIGINS:
-        API_AUTH_ENABLED: False
+        API_AUTH_ENABLED: "False"
         API_ORIGINS: "*"
-        API_ALLOW_CREDENTIALS: True
+        API_ALLOW_CREDENTIALS: "True"
         API_ALLOW_METHODS: "*"
         API_ALLOW_HEADERS: "*"
         RESULT_EXPIRES: 0
