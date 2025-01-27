@@ -83,35 +83,35 @@ async def retrieve_job_status(
 ) -> Response:
     return tpot_controller.retreive_job_status(automl_job_id, lines)
 
-@router.get(
-    path="/automl/job/{automl_job_id}/result", 
-    tags=["tpot-automl-job-operations"],
-    summary="Get method for retrieving the result of an AutoML job",
-    description="Retrieve the result of an AutoML job",
-    deprecated=True,
-    response_description="Id of the AutoML job and its result"
-)
-async def retrieve_job_result(
-    automl_job_id: str = Path(..., description="AutoML job Id")
-) -> Response:
-    return tpot_controller.retrieve_job_result(automl_job_id)
+# @router.get(
+#     path="/automl/job/{automl_job_id}/result", 
+#     tags=["tpot-automl-job-operations"],
+#     summary="Get method for retrieving the result of an AutoML job",
+#     description="Retrieve the result of an AutoML job",
+#     deprecated=True,
+#     response_description="Id of the AutoML job and its result"
+# )
+# async def retrieve_job_result(
+#     automl_job_id: str = Path(..., description="AutoML job Id")
+# ) -> Response:
+#     return tpot_controller.retrieve_job_result(automl_job_id)
 
 # ==============================
 # TPOT to BentoML
 # ==============================
 
-@router.post(
-    path="/automl/job/{automl_job_id}/save_model_bentoml",
-    tags=["tpot-to-bentoml"],
-    summary="Post method for saving a model using BentoML",
-    description="Save a model using BentoML",
-    deprecated=True,
-    response_description="Id of the AutoML job and a message"
-)
-async def save_model_bentoml(
-    automl_job_id: str = Path(..., description="AutoML job Id")
-) -> Response:
-    return tpot_controller.save_model_to_bentoml(automl_job_id)
+# @router.post(
+#     path="/automl/job/{automl_job_id}/save_model_bentoml",
+#     tags=["tpot-to-bentoml"],
+#     summary="Post method for saving a model using BentoML",
+#     description="Save a model using BentoML",
+#     deprecated=True,
+#     response_description="Id of the AutoML job and a message"
+# )
+# async def save_model_bentoml(
+#     automl_job_id: str = Path(..., description="AutoML job Id")
+# ) -> Response:
+#     return tpot_controller.save_model_to_bentoml(automl_job_id)
 
 @router.get(
     path="/automl/job/{automl_job_id}/export_model_bentoml",

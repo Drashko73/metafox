@@ -11,15 +11,42 @@ from metafox_shared.constants.api_constants import *
 
 load_dotenv()
 
+def custom_openapi():
+    if app.openapi_schema:
+        return app.openapi_schema
+    
+    openapi_schema = get_openapi(
+        title="MetaFOX API",
+        version=os.getenv("API_VERSION", API_DEFAULT_VERSION),
+        openapi_version="3.1.0",
+        summary="MetaFOX - Advanced Automated Machine Learning Service",
+        description="""MetaFOX is an advanced automated machine learning (AutoML) service that provides a comprehensive set of tools for feature selection, hyperparameter optimization, and model selection. It is designed to be user-friendly and easy to use, with a focus on providing a high level of automation and customization. MetaFOX uses popular open-source libraries and is designed to be extensible and flexible, allowing users to easily integrate it into their existing workflows.
+        """,
+        servers=[
+            {
+                "url": f"http://localhost:{os.getenv('API_PORT', 8000)}",
+                "description": "Local Development Server"
+            }
+        ],
+        routes=app.routes,
+        contact={
+            "name": "MetaFOX Repository",
+            "url": "https://gitlab.pmf.kg.ac.rs/ceramo/metafox/-/tree/develop",
+            "email": ""
+        }
+    )
+    app.openapi_schema = openapi_schema
+    return app.openapi_schema
+
 app = FastAPI(
-    title=os.getenv("API_NAME", API_NAME), 
-    version=os.getenv("API_VERSION", API_DEFAULT_VERSION),
-    description="API for MetaFOX Component",
-    docs_url=os.getenv("API_DOCS_URL", API_DOCS_URL),
-    redoc_url=os.getenv("API_REDOC_URL", API_REDOC_URL),
+    docs_url="/swagger",
+    redoc_url="/redoc",
+    openapi_url="/openapi.json"
 )
 
-api_prefix = os.getenv("API_PREFIX", API_PREFIX)
+app.openapi = custom_openapi
+
+api_prefix = "/metafox"
 host = os.getenv("API_HOST", "localhost")
 port = os.getenv("API_PORT", 8000)
 
@@ -52,6 +79,8 @@ app.add_middleware(
 
 if __name__ == "__main__":
     import uvicorn
+    from fastapi.openapi.utils import get_openapi
+    
     uvicorn.run(
         app,
         host=host,
