@@ -1,13 +1,11 @@
-from fastapi import APIRouter, Response, Path, Query
+from fastapi import APIRouter, Response, Path, Query, Depends
 
 from metafox_shared.constants.api_constants import LOG_LINES
 from metafox_api.models.tpot_job import TPOTAutoMLJob
-from metafox_shared.dal.mongo.mongo_client import MongoClient
 from metafox_api.controllers.tpot_controller import TPOTController
+from metafox_api.dependencies import get_tpot_controller
 
 router = APIRouter()
-data_store = MongoClient()
-tpot_controller = TPOTController(data_store)
 
 # ==============================
 # TPOT AutoML Job Configuration
@@ -22,9 +20,10 @@ tpot_controller = TPOTController(data_store)
     response_description="Id of the stored AutoML job and a message"
 )
 async def create_automl_job(
-    body: TPOTAutoMLJob
+    body: TPOTAutoMLJob,
+    controller: TPOTController = Depends(get_tpot_controller)
 ) -> Response:
-    return tpot_controller.create_automl_job(body)
+    return controller.create_automl_job(body)
 
 @router.get(
     path="/automl/job/{automl_job_id}/details",
@@ -35,9 +34,10 @@ async def create_automl_job(
     response_description="Id of the AutoML job and its details"
 )
 async def retrieve_job_details(
-    automl_job_id: str = Path(..., description="AutoML job Id")
+    automl_job_id: str = Path(..., description="AutoML job Id"),
+    controller: TPOTController = Depends(get_tpot_controller)
 ) -> Response:
-    return tpot_controller.retrieve_job_details(automl_job_id)
+    return controller.retrieve_job_details(automl_job_id)
 
 # ==============================
 # TPOT AutoML Job Operations
@@ -52,9 +52,10 @@ async def retrieve_job_details(
     response_description="Id of the AutoML job and a message"
 )
 async def start_automl_job(
-    automl_job_id: str = Path(..., description="AutoML job Id")
+    automl_job_id: str = Path(..., description="AutoML job Id"),
+    controller: TPOTController = Depends(get_tpot_controller)
 ) -> Response:
-    return tpot_controller.start_automl_job(automl_job_id)
+    return controller.start_automl_job(automl_job_id)
 
 @router.post(
     path="/automl/job/{automl_job_id}/stop",
@@ -65,9 +66,10 @@ async def start_automl_job(
     response_description="Id of the AutoML job and a message"
 )
 async def stop_automl_job(
-    automl_job_id: str = Path(..., description="AutoML job Id")
+    automl_job_id: str = Path(..., description="AutoML job Id"),
+    controller: TPOTController = Depends(get_tpot_controller)
 ) -> Response:
-    return tpot_controller.stop_automl_job(automl_job_id)
+    return controller.stop_automl_job(automl_job_id)
 
 @router.get(
     path="/automl/job/{automl_job_id}/status", 
@@ -79,9 +81,10 @@ async def stop_automl_job(
 )
 async def retrieve_job_status(
     automl_job_id: str = Path(..., description="AutoML job Id"),
-    lines: int = Query(LOG_LINES, description="Number of lines to retrieve", ge=0)
+    lines: int = Query(LOG_LINES, description="Number of lines to retrieve", ge=0),
+    controller: TPOTController = Depends(get_tpot_controller)
 ) -> Response:
-    return tpot_controller.retreive_job_status(automl_job_id, lines)
+    return controller.retreive_job_status(automl_job_id, lines)
 
 # @router.get(
 #     path="/automl/job/{automl_job_id}/result", 
@@ -122,6 +125,7 @@ async def retrieve_job_status(
     response_description="File containing the exported model",
 )
 async def export_model_bentoml(
-    automl_job_id: str = Path(..., description="AutoML job Id")
+    automl_job_id: str = Path(..., description="AutoML job Id"),
+    controller: TPOTController = Depends(get_tpot_controller)
 ) -> Response:
-    return tpot_controller.export_model_bentoml(automl_job_id)
+    return controller.export_model_bentoml(automl_job_id)

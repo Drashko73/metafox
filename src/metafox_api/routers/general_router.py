@@ -1,12 +1,10 @@
-from fastapi import APIRouter, Response, Query, Path
+from fastapi import APIRouter, Depends, Response, Path
 from fastapi_pagination import Page
 
-from metafox_shared.dal.mongo.mongo_client import MongoClient
 from metafox_api.controllers.general_controller import GeneralController
+from metafox_api.dependencies import get_general_controller
 
 router = APIRouter()
-data_store = MongoClient()
-controller = GeneralController(data_store)
 
 # ==============================
 # MetaFOX API
@@ -20,7 +18,7 @@ controller = GeneralController(data_store)
     deprecated=False,
     response_description="List of AutoML jobs"
 )
-async def retrieve_all_jobs() -> Page[dict]:
+async def retrieve_all_jobs(controller: GeneralController = Depends(get_general_controller)) -> Page[dict]:
     return controller.retrieve_all_jobs()
 
 @router.delete(
@@ -31,7 +29,7 @@ async def retrieve_all_jobs() -> Page[dict]:
     deprecated=False,
     response_description="Message"
 )
-async def prune_automl_jobs() -> Response:
+async def prune_automl_jobs(controller: GeneralController = Depends(get_general_controller)) -> Response:
     return controller.prune_automl_jobs()
 
 @router.delete(
@@ -43,6 +41,7 @@ async def prune_automl_jobs() -> Response:
     response_description="Message"
 )
 async def delete_automl_job(
-    automl_job_id: str = Path(..., description='AutoML job ID')
+    automl_job_id: str = Path(..., description='AutoML job ID'),
+    controller: GeneralController = Depends(get_general_controller)
 ) -> Response:
     return controller.delete_automl_job(automl_job_id)

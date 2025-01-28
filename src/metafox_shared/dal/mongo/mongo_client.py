@@ -13,6 +13,8 @@ class MongoClient:
         
         self.client: PyMongoClient = PyMongoClient(os.getenv("MONGO_URI", "mongodb://localhost:27017/"))
         self.db: Database = self.client.get_database(os.getenv("MONGO_DB", "metafox"))
+        
+        print("MongoDB connection established.")
     
     def get_collection(self, collection_name: str) -> Collection:
         return self.db.get_collection(collection_name)
@@ -52,5 +54,6 @@ class MongoClient:
         timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
         return f"{unique_id}-{timestamp}"
 
-    def __del__(self) -> None:
+    def close(self) -> None:
+        print("Closing MongoDB connection...")
         self.client.close()
