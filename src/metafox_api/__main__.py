@@ -26,6 +26,14 @@ def custom_openapi():
             {
                 "url": f"http://localhost:{os.getenv('API_PORT', 8000)}",
                 "description": "Local Development Server"
+            },
+            {
+                "url": f"http://147.91.204.120:{os.getenv('API_PORT', 8000)}",
+                "description": "CERAMO Server"
+            },
+            {
+                "url": f"http://147.91.204.112:{os.getenv('API_PORT', 8000)}",
+                "description": "CERAMO Raspberry Pi Server"
             }
         ],
         routes=app.routes,
