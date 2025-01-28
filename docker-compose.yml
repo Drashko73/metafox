@@ -14,11 +14,11 @@ services:
       - "5671:5671"
       - "5672:5672"
 
-  redis:
-    image: redis:latest
-    container_name: redis
+  mongo:
+    image: mongo:latest
+    container_name: mongo
     ports:
-      - "6379:6379"
+      - "27017:27017"
 
   api:
     build:
@@ -30,13 +30,10 @@ services:
         API_HOST: 0.0.0.0
         API_PORT: 8000
         BROKER_URL: pyamqp://rabbitmq:5672//
-        RESULT_BACKEND: redis://redis:6379/0
+        RESULT_BACKEND: mongodb://mongo:27017/
         TASK_SERIALIZER: json
         RESULT_SERIALIZER: json
         WORKER_CONCURRENCY: 1
-        REDIS_HOST: redis
-        REDIS_PORT: 6379
-        REDIS_DB: 0
         KEYCLOAK_SERVER_URL:
         KEYCLOAK_CLIENT_ID:
         KEYCLOAK_REALM_NAME:
@@ -51,11 +48,16 @@ services:
         API_ALLOW_METHODS: "*"
         API_ALLOW_HEADERS: "*"
         RESULT_EXPIRES: 0
+        MONGO_DB: metafox
+        MONGO_URI: mongodb://mongo:27017/
+        MONGO_COLLECTION_TASK_META: task_meta
+        MONGO_COLLECTION_AUTOML_JOB_DETAILS: automl_job_details
+        MONGO_COLLECTION_TASK_INFO: task_info
     ports:
       - "8000:8000"
     depends_on:
       - rabbitmq
-      - redis
+      - mongo
     volumes:
       - ./src/metafox_shared:/usr/src/metafox_shared
 
@@ -65,18 +67,20 @@ services:
       dockerfile: Dockerfile
     environment:
         BROKER_URL: pyamqp://rabbitmq:5672//
-        RESULT_BACKEND: redis://redis:6379/0
+        RESULT_BACKEND: mongodb://mongo:27017/
         TASK_SERIALIZER: json
         RESULT_SERIALIZER: json
         WORKER_CONCURRENCY: 1
-        REDIS_HOST: redis
-        REDIS_PORT: 6379
-        REDIS_DB: 0
         RESULT_EXPIRES: 0
+        MONGO_DB: metafox
+        MONGO_URI: mongodb://mongo:27017/
+        MONGO_COLLECTION_TASK_META: task_meta
+        MONGO_COLLECTION_AUTOML_JOB_DETAILS: automl_job_details
+        MONGO_COLLECTION_TASK_INFO: task_info
     depends_on:
       - api
       - rabbitmq
-      - redis
+      - mongo
     volumes:
       - ./src/metafox_shared:/usr/src/metafox_shared
     deploy:
@@ -87,7 +91,7 @@ services:
     container_name: flower
     environment:
         BROKER_URL: pyamqp://rabbitmq:5672//
-        RESULT_BACKEND: redis://redis:6379/0
+        RESULT_BACKEND: mongodb://mongo:27017/
         FLOWER_PERSISTENT: True
         FLOWER_STATE_SAVE_INTERVAL: 10000
         FLOWER_DB: flower_db
@@ -96,4 +100,4 @@ services:
     depends_on:
       - api
       - rabbitmq
-      - redis
+      - mongo

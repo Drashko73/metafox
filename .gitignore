@@ -162,13 +162,16 @@ cython_debug/
 #.idea/
 
 # Checkpoints directory
-src/metafox_worker/checkpoints/
+checkpoints/
 
 # Logs directory
-src/metafox_worker/logs/
+logs/
 
 # Exported models directory
-src/metafox_worker/exported_models/
+exported_models/
+
+# Bento models directory
+bento_models/
 
 # Idea directory
 .idea/

@@ -4,10 +4,9 @@ import uuid
 from redis import Redis
 from datetime import datetime
 from dotenv import load_dotenv
-from metafox_shared.dal.idatastore import IDataStore
 from metafox_shared.constants.api_constants import *
 
-class RedisClient (IDataStore):
+class RedisClient:
     def __init__(self) -> None:
         load_dotenv()
         self.redis = Redis(

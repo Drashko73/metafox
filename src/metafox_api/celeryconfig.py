@@ -18,6 +18,11 @@ result_backend = os.getenv(
     default='redis://localhost:6379/0'
 )
 
+mongodb_backend_settings = {
+    'database': os.getenv("MONGO_DB", "metafox"),
+    'taskmeta_collection': os.getenv("MONGO_COLLECTION_TASK_META", "taskmeta")
+}
+
 # List of modules every worker should import
 imports = [
     'metafox_worker.tasks.start_training'

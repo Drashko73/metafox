@@ -1,11 +1,11 @@
 from fastapi import APIRouter, Response, Query, Path
 from fastapi_pagination import Page
 
-from metafox_shared.dal.redis.redis_client import RedisClient
+from metafox_shared.dal.mongo.mongo_client import MongoClient
 from metafox_api.controllers.general_controller import GeneralController
 
 router = APIRouter()
-data_store = RedisClient()
+data_store = MongoClient()
 controller = GeneralController(data_store)
 
 # ==============================

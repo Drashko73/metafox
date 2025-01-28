@@ -1,12 +1,12 @@
 import json
+import logging
 
 from fastapi import Response
 from fastapi_pagination import Page, paginate
 from metafox_shared.constants.string_constants import *
-from metafox_shared.dal.idatastore import IDataStore
 from metafox_api.controllers.base_controller import BaseController
 from metafox_shared.constants.api_constants import *
-
+from metafox_shared.dal.mongo.mongo_client import MongoClient
 
 class GeneralController(BaseController):
     """
@@ -16,7 +16,7 @@ class GeneralController(BaseController):
         BaseController (_type_): Base controller class.
     """
     
-    def __init__(self, data_store: IDataStore) -> None:
+    def __init__(self, data_store: MongoClient) -> None:
         """
         Constructor for GeneralController.
         Args:
@@ -30,14 +30,13 @@ class GeneralController(BaseController):
         Returns:
             Page[dict]: Paginated response containing all AutoML jobs.
         """
-        keys = self.data_store.get_automl_job_ids()
+        keys = self.data_store.get_automl_job_ids(self.collection_automl_job_details)
         response = []
         
         for key in keys:
-            celery_task = eval(self.data_store.get(CELERY_KEY_PREFIX + key))
-            celery_task_id = celery_task[TASK_ID]
+            celery_task = eval(self.data_store.get(CELERY_KEY_PREFIX + key, self.collection_task_info))
 
-            job_detail = eval(self.data_store.get(key))
+            job_detail = eval(self.data_store.get(key, self.collection_automl_job_details))
             response.append({
                 key: {
                     JOB_NAME: job_detail[JOB_NAME],
@@ -70,9 +69,9 @@ class GeneralController(BaseController):
             is_ready = self.celery.AsyncResult(task_id).ready()
             
             if is_ready:
-                self.data_store.delete(CELERY_METAS_KEY_PREFIX + task_id)
-                self.data_store.delete(CELERY_KEY_PREFIX + job_ids[task_ids.index(task_id)])
-                self.data_store.delete(job_ids[task_ids.index(task_id)])
+                self.data_store.delete(task_id, self.collection_task_meta)
+                self.data_store.delete(CELERY_KEY_PREFIX + job_ids[task_ids.index(task_id)], self.collection_task_info)
+                self.data_store.delete(job_ids[task_ids.index(task_id)], self.collection_automl_job_details)
                 
                 deleted_jobs += 1
 
@@ -102,8 +101,8 @@ class GeneralController(BaseController):
             )
             
         if task_id == NOT_STARTED:
-            self.data_store.delete(CELERY_KEY_PREFIX + job_id)
-            self.data_store.delete(job_id)
+            self.data_store.delete(CELERY_KEY_PREFIX + job_id, self.collection_task_info)
+            self.data_store.delete(job_id, self.collection_automl_job_details)
             
             return Response(
                 status_code=200,
@@ -121,9 +120,9 @@ class GeneralController(BaseController):
                 media_type="text/plain"
             )
         
-        self.data_store.delete(CELERY_METAS_KEY_PREFIX + task_id)
-        self.data_store.delete(CELERY_KEY_PREFIX + job_id)
-        self.data_store.delete(job_id)
+        self.data_store.delete(task_id, self.collection_task_meta)
+        self.data_store.delete(CELERY_KEY_PREFIX + job_id, self.collection_task_info)
+        self.data_store.delete(job_id, self.collection_automl_job_details)
         
         return Response(
             status_code=200,
@@ -137,14 +136,20 @@ class GeneralController(BaseController):
         Returns:
             tuple: Tuple containing lists of started job IDs and task IDs.
         """
-        keys, values = self.data_store.get_keys_by_pattern(CELERY_KEY_PREFIX + "*")
+        # TODO: REFACTOR THIS METHOD SO IT USES NEW LOGIC OF MONGODB AND DIFFERENT COLLECTIONS
+        result = self.data_store.get_keys_by_pattern(CELERY_KEY_PREFIX + "*", self.collection_task_info)
+        
+        if result is None or len(result) == 0:
+            return ([], [])
+        
         started_job_ids = []
         started_task_ids = []
         
-        for value in values:
-            task_id = eval(value)[TASK_ID]
+        for key in result:
+            task = self.data_store.get(key, self.collection_task_info)
+            task_id = eval(task)[TASK_ID]
             if task_id != NOT_STARTED:
                 started_task_ids.append(task_id)
-                started_job_ids.append(keys[values.index(value)].replace(CELERY_KEY_PREFIX, ""))
+                started_job_ids.append(key.replace(CELERY_KEY_PREFIX, ""))
         
         return (started_job_ids, started_task_ids)

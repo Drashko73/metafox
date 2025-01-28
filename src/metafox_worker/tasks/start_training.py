@@ -1,9 +1,7 @@
 import os
 import celery
 import pickle
-import datetime
 import threading
-import numpy as np
 import pandas as pd
 import celery.result
 
@@ -14,12 +12,13 @@ from metafox_worker.main import app
 from metafox_shared.constants.worker_constants import *
 from metafox_shared.constants.string_constants import *
 from metafox_shared.constants.api_constants import *
-from metafox_shared.dal.redis.redis_client import RedisClient
+from metafox_shared.dal.mongo.mongo_client import MongoClient
 from metafox_shared.utilis import get_current_date
 
 stop_event = threading.Event()
 logs_dictionary = {}
-redis = RedisClient()
+mongo_client = MongoClient()
+collection_task_info = os.getenv("MONGO_COLLECTION_TASK_INFO", "automl_job_status")
 
 @task_received.connect
 def task_received_handler(sender, request, **kwargs):
@@ -35,12 +34,12 @@ def task_received_handler(sender, request, **kwargs):
     hostname = request.hostname
     key = CELERY_KEY_PREFIX + request.args[0][ID]
     
-    celery_task = eval(redis.get(key))
+    celery_task = eval(mongo_client.get(key, collection_task_info))
     
     celery_task[TIMESTAMP_RECEIVED] = date_received
     celery_task[HOSTNAME] = hostname
     
-    redis.update(key, celery_task.__str__())
+    mongo_client.update(key, celery_task.__str__(), collection_task_info)
     
 @task_prerun.connect
 def task_prerun_handler(sender, task_id, task, **kwargs):
@@ -56,10 +55,10 @@ def task_prerun_handler(sender, task_id, task, **kwargs):
     if 'args' in kwargs:
         key = CELERY_KEY_PREFIX + kwargs['args'][0][ID]
         
-        celery_task = eval(redis.get(key))
+        celery_task = eval(mongo_client.get(key, collection_task_info))
         celery_task[TIMESTAMP_STARTED] = date_started
         
-        redis.update(key, celery_task.__str__())
+        mongo_client.update(key, celery_task.__str__(), collection_task_info)
     
 @task_postrun.connect
 def task_postrun_handler(sender, task_id, task, retval, state, **kwargs):
@@ -68,11 +67,11 @@ def task_postrun_handler(sender, task_id, task, retval, state, **kwargs):
     if 'args' in kwargs:
         key = CELERY_KEY_PREFIX + kwargs['args'][0][ID]
         
-        celery_task = eval(redis.get(key))
+        celery_task = eval(mongo_client.get(key, collection_task_info))
         celery_task[TIMESTAMP_COMPLETED] = date_finished
         celery_task[FINISHED_STATUS] = state
         
-        redis.update(key, celery_task.__str__())
+        mongo_client.update(key, celery_task.__str__(), collection_task_info)
 
 def observe_logs(task: Task, job_id: str, task_id: str) -> None:
     log_file = "metafox_worker/logs/" + job_id + ".log"

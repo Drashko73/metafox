@@ -2,11 +2,11 @@ from fastapi import APIRouter, Response, Path, Query
 
 from metafox_shared.constants.api_constants import LOG_LINES
 from metafox_api.models.tpot_job import TPOTAutoMLJob
-from metafox_shared.dal.redis.redis_client import RedisClient
+from metafox_shared.dal.mongo.mongo_client import MongoClient
 from metafox_api.controllers.tpot_controller import TPOTController
 
 router = APIRouter()
-data_store = RedisClient()
+data_store = MongoClient()
 tpot_controller = TPOTController(data_store)
 
 # ==============================

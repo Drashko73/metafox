@@ -7,11 +7,12 @@ from fastapi import Response
 from celery import states
 from metafox_shared.constants.api_constants import *
 from metafox_shared.constants.string_constants import *
-from metafox_shared.dal.idatastore import IDataStore
 from metafox_api.models.tpot_job import TPOTAutoMLJob
 from metafox_api.controllers.base_controller import BaseController
 from metafox_api.models.celery_task import CeleryTaskInfo
+from metafox_shared.dal.mongo.mongo_client import MongoClient
 from metafox_shared.utilis import get_current_date
+
 class TPOTController(BaseController):
     """
     Controller for TPOT AutoML jobs.
@@ -19,12 +20,12 @@ class TPOTController(BaseController):
         BaseController (_type_): Base controller class.
     """
     
-    def __init__(self, data_store: IDataStore) -> None:
+    def __init__(self, data_store: MongoClient) -> None:
         """
         Initialize the TpotController with the given data store.
 
         Args:
-            data_store (IDataStore): The data store instance to be used by the controller.
+            data_store (MongoClient): The data store instance to be used by the controller.
         """
         super().__init__(data_store)
         
@@ -43,7 +44,7 @@ class TPOTController(BaseController):
         id = self.data_store.generate_unique_job_key()
         
         try:
-            self.data_store.set(id, job_details)
+            self.data_store.set(id, job_details, self.collection_automl_job_details)
         except Exception as e:
             return Response(
                 status_code=500, 
@@ -62,7 +63,7 @@ class TPOTController(BaseController):
         )
         
         try:
-            self.data_store.set(CELERY_KEY_PREFIX + id, celery_task.__str__())    # Set celery task id to NOT_STARTED
+            self.data_store.set(CELERY_KEY_PREFIX + id, celery_task.__str__(), self.collection_task_info)    # Set celery task id to NOT_STARTED
         except Exception as e:
             return Response(
                 status_code=500, 
@@ -115,11 +116,11 @@ class TPOTController(BaseController):
         
         result = self.celery.send_task('metafox_worker.tasks.start_training.start_automl_train', [{DETAILS: job_details, ID: automl_job_id}])
         
-        celery_task = eval(self.data_store.get(CELERY_KEY_PREFIX + automl_job_id))
+        celery_task = eval(self.data_store.get(CELERY_KEY_PREFIX + automl_job_id, self.collection_task_info))
         celery_task[TASK_ID] = result.id
         
         try:
-            self.data_store.update(CELERY_KEY_PREFIX + automl_job_id, celery_task.__str__())  # Update celery task id status to the task id
+            self.data_store.update(CELERY_KEY_PREFIX + automl_job_id, celery_task.__str__(), self.collection_task_info)  # Update celery task id status to the task id
         except Exception as e:
             return Response(
                 status_code=500, 
@@ -145,7 +146,7 @@ class TPOTController(BaseController):
                 - If the job is successfully stopped, returns a 200 response with a message.
         """
         try:
-            status = self.data_store.get(CELERY_KEY_PREFIX + automl_job_id)
+            status = self.data_store.get(CELERY_KEY_PREFIX + automl_job_id, self.collection_task_info)
         except Exception as e:
             return Response(
                 status_code=404,
@@ -185,7 +186,7 @@ class TPOTController(BaseController):
             500: If there is a failure in the AutoML job or saving the model to BentoML.
         """
         try:
-            status = self.data_store.get(CELERY_KEY_PREFIX + automl_job_id)
+            status = self.data_store.get(CELERY_KEY_PREFIX + automl_job_id, self.collection_task_info)
         except Exception as e:
             return Response(
                 status_code=404,
@@ -291,7 +292,7 @@ class TPOTController(BaseController):
             )
         
         try:
-            status = self.data_store.get(CELERY_KEY_PREFIX + automl_job_id)
+            status = self.data_store.get(CELERY_KEY_PREFIX + automl_job_id, self.collection_task_info)
         except Exception as e:
             return Response(
                 status_code=404,
@@ -352,7 +353,7 @@ class TPOTController(BaseController):
             Exception: If there is an error retrieving the job details from the data store.
         """
         try:
-            status = self.data_store.get(CELERY_KEY_PREFIX + automl_job_id)
+            status = self.data_store.get(CELERY_KEY_PREFIX + automl_job_id, self.collection_task_info)
         except Exception as e:
             return Response(
                 status_code=404, 
@@ -405,7 +406,7 @@ class TPOTController(BaseController):
             200: If the model file is successfully retrieved and returned as an attachment.
         """
         try:
-            status = self.data_store.get(CELERY_KEY_PREFIX + automl_job_id)
+            status = self.data_store.get(CELERY_KEY_PREFIX + automl_job_id, self.collection_task_info)
         except Exception as e:
             return Response(
                 status_code=404,

@@ -31,8 +31,7 @@ def custom_openapi():
         routes=app.routes,
         contact={
             "name": "MetaFOX Repository",
-            "url": "https://gitlab.pmf.kg.ac.rs/ceramo/metafox/-/tree/develop",
-            "email": ""
+            "url": "https://gitlab.pmf.kg.ac.rs/ceramo/metafox/-/tree/develop"
         }
     )
     app.openapi_schema = openapi_schema
