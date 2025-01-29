@@ -5,24 +5,24 @@ from fastapi_pagination import add_pagination
 from metafox_api.auth import get_user_info
 from metafox_api.routers.general_router import router as general_router
 from metafox_api.routers.tpot_router import router as tpot_router
-from metafox_api.dependencies import get_mongo_client
+from metafox_api.dependencies import get_data_store
 
-mongo_client_instance = get_mongo_client()
+db_client_instance = get_data_store()
 from metafox_api.openapi import custom_openapi
 
 app = FastAPI(
     docs_url="/swagger",
     redoc_url="/redoc",
     on_startup=[lambda: print("MetaFox API started.")],
-    on_shutdown=[lambda: mongo_client_instance.close() if mongo_client_instance is not None 
-                 else print("MongoDB connection not established.")]
+    on_shutdown=[lambda: db_client_instance.close() if db_client_instance is not None 
+                 else print("Cannot close. Database connection not established.")]
 )
 
 app.openapi = lambda: custom_openapi(app)
 
 api_prefix = "/metafox"
-host = os.getenv("API_HOST", "localhost")
-port = os.getenv("API_PORT", 8000)
+host = "0.0.0.0"
+port = 8000
 
 app.include_router(
     router=general_router,
@@ -56,5 +56,5 @@ if __name__ == "__main__":
     uvicorn.run(
         app,
         host=host,
-        port=int(port)
+        port=port
     )

@@ -87,15 +87,6 @@ To access the API documentation, simply open a web browser and enter the URL `ht
 MetaFOX uses environment variables for configuration. To set up the necessary environment variables, create a `.env` file in the root directory of the project. Here is an example of how the `.env` file should be structured:
 
 ```
-API_NAME=MetaFOX
-API_VERSION=1.0.0
-API_HOST=localhost
-API_PORT=8000
-API_PREFIX=/metafox
-API_DOCS_URL=/metafox/docs
-API_REDOC_URL=/metafox/redoc
-
-
 BROKER_URL=pyamqp://guest@localhost:5672//
 RESULT_BACKEND=redis://localhost:6379/0
 TASK_SERIALIZER=json

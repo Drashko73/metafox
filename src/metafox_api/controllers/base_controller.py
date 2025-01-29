@@ -3,18 +3,18 @@ from dotenv import load_dotenv
 from celery import Celery
 from metafox_shared.constants.api_constants import CELERY_KEY_PREFIX
 from metafox_shared.constants.string_constants import TASK_ID
-from metafox_shared.dal.mongo.mongo_client import MongoClient
+from metafox_shared.dal.idatastore import IDataStore
 
 class BaseController:
     """
     Base controller class for all controllers.
     """
     
-    def __init__(self, data_store: MongoClient) -> None:
+    def __init__(self, data_store: IDataStore) -> None:
         """
         Constructor for the BaseController class.
         Args:
-            data_store (MongoClient): Data store object.
+            data_store (IDataStore): Data store object.
         """
         load_dotenv()
         

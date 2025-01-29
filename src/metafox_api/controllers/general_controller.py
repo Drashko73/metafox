@@ -1,12 +1,12 @@
+import os
 import json
-import logging
 
 from fastapi import Response
 from fastapi_pagination import Page, paginate
 from metafox_shared.constants.string_constants import *
 from metafox_api.controllers.base_controller import BaseController
 from metafox_shared.constants.api_constants import *
-from metafox_shared.dal.mongo.mongo_client import MongoClient
+from metafox_shared.dal.idatastore import IDataStore
 
 class GeneralController(BaseController):
     """
@@ -16,7 +16,7 @@ class GeneralController(BaseController):
         BaseController (_type_): Base controller class.
     """
     
-    def __init__(self, data_store: MongoClient) -> None:
+    def __init__(self, data_store: IDataStore) -> None:
         """
         Constructor for GeneralController.
         Args:
@@ -69,7 +69,10 @@ class GeneralController(BaseController):
             is_ready = self.celery.AsyncResult(task_id).ready()
             
             if is_ready:
-                self.data_store.delete(task_id, self.collection_task_meta)
+                if os.getenv("DB_TYPE", "mongo") == "redis":
+                    self.data_store.delete(CELERY_METAS_KEY_PREFIX + task_id, self.collection_task_meta)
+                else:
+                    self.data_store.delete(task_id, self.collection_task_meta)
                 self.data_store.delete(CELERY_KEY_PREFIX + job_ids[task_ids.index(task_id)], self.collection_task_info)
                 self.data_store.delete(job_ids[task_ids.index(task_id)], self.collection_automl_job_details)
                 
@@ -120,7 +123,10 @@ class GeneralController(BaseController):
                 media_type="text/plain"
             )
         
-        self.data_store.delete(task_id, self.collection_task_meta)
+        if(os.getenv("DB_TYPE", "mongo") == "redis"):
+            self.data_store.delete(CELERY_METAS_KEY_PREFIX + task_id, self.collection_task_meta)
+        else:
+            self.data_store.delete(task_id, self.collection_task_meta)
         self.data_store.delete(CELERY_KEY_PREFIX + job_id, self.collection_task_info)
         self.data_store.delete(job_id, self.collection_automl_job_details)
         

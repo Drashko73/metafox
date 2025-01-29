@@ -19,20 +19,6 @@ spec:
         ports:
         - containerPort: 8000
         env:
-        - name: API_NAME
-          value: "MetaFOX"
-        - name: API_VERSION
-          value: "1.0.0"
-        - name: API_HOST
-          value: "0.0.0.0"
-        - name: API_PORT
-          value: "8000"
-        - name: API_PREFIX
-          value: "/metafox"
-        - name: API_DOCS_URL
-          value: "/metafox/docs"
-        - name: API_REDOC_URL
-          value: "/metafox/redoc"
         - name: BROKER_URL
           value: "pyamqp://rabbitmq:5672//"
         - name: RESULT_BACKEND
