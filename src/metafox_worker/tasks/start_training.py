@@ -33,12 +33,12 @@ def task_received_handler(sender, request, **kwargs):
     hostname = request.hostname
     key = CELERY_KEY_PREFIX + request.args[0][ID]
     
+    mongo_client = get_mongo_client()
     celery_task = eval(mongo_client.get(key, collection_task_info))
     
     celery_task[TIMESTAMP_RECEIVED] = date_received
     celery_task[HOSTNAME] = hostname
     
-    mongo_client = get_mongo_client()
     mongo_client.update(key, celery_task.__str__(), collection_task_info)
     
 @task_prerun.connect
