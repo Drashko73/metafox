@@ -26,8 +26,6 @@ services:
     environment:
       BROKER_URL: pyamqp://rabbitmq:5672//
       RESULT_BACKEND: mongodb://mongo:27017/
-      TASK_SERIALIZER: json
-      RESULT_SERIALIZER: json
       WORKER_CONCURRENCY: 1
       KEYCLOAK_SERVER_URL:
       KEYCLOAK_CLIENT_ID:
@@ -42,7 +40,6 @@ services:
       API_ALLOW_CREDENTIALS: "True"
       API_ALLOW_METHODS: "*"
       API_ALLOW_HEADERS: "*"
-      RESULT_EXPIRES: 0
       MONGO_DB: metafox
       MONGO_URI: mongodb://mongo:27017/
       MONGO_COLLECTION_TASK_META: task_meta
@@ -61,10 +58,7 @@ services:
     environment:
       BROKER_URL: pyamqp://rabbitmq:5672//
       RESULT_BACKEND: mongodb://mongo:27017/
-      TASK_SERIALIZER: json
-      RESULT_SERIALIZER: json
       WORKER_CONCURRENCY: 1
-      RESULT_EXPIRES: 0
       MONGO_DB: metafox
       MONGO_URI: mongodb://mongo:27017/
       MONGO_COLLECTION_TASK_META: task_meta

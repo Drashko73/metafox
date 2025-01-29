@@ -21,10 +21,6 @@ spec:
           value: "pyamqp://rabbitmq:5672//"
         - name: RESULT_BACKEND
           value: "redis://redis:6379/0"
-        - name: TASK_SERIALIZER
-          value: "json"
-        - name: RESULT_SERIALIZER
-          value: "json"
         - name: WORKER_CONCURRENCY
           value: "1"
         - name: REDIS_HOST
@@ -32,8 +28,6 @@ spec:
         - name: REDIS_PORT
           value: "6379"
         - name: REDIS_DB
-          value: "0"
-        - name: RESULT_EXPIRES
           value: "0"
         - name: PYTHONPATH
           value: "/usr/src"

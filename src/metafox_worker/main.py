@@ -4,7 +4,7 @@ from metafox_shared.constants.string_constants import *
 from metafox_worker.dependencies import get_data_store
 
 app = Celery(
-    METAFOX_STR
+    "metafox"
 )
 
 app.config_from_object('metafox_worker.celeryconfig')

@@ -89,8 +89,6 @@ MetaFOX uses environment variables for configuration. To set up the necessary en
 ```
 BROKER_URL=pyamqp://guest@localhost:5672//
 RESULT_BACKEND=redis://localhost:6379/0
-TASK_SERIALIZER=json
-RESULT_SERIALIZER=json
 WORKER_CONCURRENCY=12
 
 REDIS_HOST=localhost
