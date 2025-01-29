@@ -51,4 +51,4 @@ class MongoClient(IDataStore):
         self.client.close()
         
     def __get_collection(self, collection_name: str) -> Collection:
-        return self.db.__get_collection(collection_name)
+        return self.db.get_collection(collection_name)
