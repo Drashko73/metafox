@@ -8,6 +8,29 @@ from pymongo.database import Database
 from metafox_shared.dal.idatastore import IDataStore
 
 class MongoClient(IDataStore):
+    """
+    A client for interacting with a MongoDB database.
+    
+    Methods:
+        __init__() -> None
+            Initializes the MongoDB client and establishes a connection to the database.
+        set(key: str, value: str, collection_name: str) -> None
+            Inserts a document with the specified key and value into the specified collection.
+        get(key: str, collection_name: str) -> str
+            Retrieves the value of the document with the specified key from the specified collection.
+        update(key: str, value: str, collection_name: str) -> None
+            Updates the value of the document with the specified key in the specified collection.
+        delete(key: str, collection_name: str) -> None
+            Deletes the document with the specified key from the specified collection.
+        get_automl_job_ids(collection_name: str) -> list
+            Retrieves a list of all document IDs from the specified collection.
+        get_keys_by_pattern(pattern: str, collection_name: str) -> list
+            Retrieves a list of document IDs that match the specified pattern from the specified collection.
+        close() -> None
+            Closes the MongoDB connection.
+        __get_collection(collection_name: str) -> Collection
+            Retrieves the specified collection from the database.
+    """
     def __init__(self) -> None:
         load_dotenv()
         

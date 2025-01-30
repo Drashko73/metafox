@@ -6,6 +6,27 @@ from metafox_shared.constants.api_constants import *
 from metafox_shared.dal.idatastore import IDataStore
 
 class RedisClient(IDataStore):
+    """
+    RedisClient is a class that provides an interface to interact with a Redis datastore.
+    
+    Methods:
+        __init__() -> None:
+            Initializes the Redis client and establishes a connection to the Redis server.
+        set(key: str, value: str, collection_name: str) -> None:
+            Sets a key-value pair in the Redis datastore. Raises an exception if the key already exists.
+        get(key: str, collection_name: str) -> str:
+            Retrieves the value associated with the given key from the Redis datastore. Raises an exception if the key does not exist.
+        update(key: str, value: str, collection_name: str) -> None:
+            Updates the value of an existing key in the Redis datastore. If the key does not exist, it sets the key-value pair.
+        delete(key: str, collection_name: str) -> None:
+            Deletes the key-value pair from the Redis datastore. Raises an exception if the key does not exist.
+        get_automl_job_ids(collection_name: str) -> list:
+            Retrieves a list of keys that match the CELERY_KEY_PREFIX from the Redis datastore.
+        get_keys_by_pattern(pattern: str, collection_name: str) -> list:
+            Retrieves a list of keys that match the given pattern from the Redis datastore.
+        close() -> None:
+            Closes the connection to the Redis server and prints a message indicating that the Redis client has been destroyed.
+    """
     def __init__(self) -> None:
         load_dotenv()
         self.redis = Redis(
