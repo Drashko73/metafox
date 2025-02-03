@@ -8,4 +8,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 ENV PYTHONPATH=/usr/src
 
-CMD ["celery", "-A", "metafox_worker.main", "worker"]
+CMD ["celery", "-A", "metafox_worker.main", "worker", "-n", "metafox-worker@%h"]
