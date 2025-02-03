@@ -1,9 +1,7 @@
-import os
-
 from redis import Redis
-from dotenv import load_dotenv
 from metafox_shared.constants.api_constants import *
 from metafox_shared.dal.idatastore import IDataStore
+from metafox_shared.config import Config
 
 class RedisClient(IDataStore):
     """
@@ -28,11 +26,10 @@ class RedisClient(IDataStore):
             Closes the connection to the Redis server and prints a message indicating that the Redis client has been destroyed.
     """
     def __init__(self) -> None:
-        load_dotenv()
         self.redis = Redis(
-            host=os.getenv("REDIS_HOST", "localhost"),
-            port=os.getenv("REDIS_PORT", 6379),
-            db=os.getenv("REDIS_DB", 0),
+            host=Config.REDIS_HOST,
+            port=Config.REDIS_PORT,
+            db=Config.REDIS_DB,
             decode_responses=True
         )
         

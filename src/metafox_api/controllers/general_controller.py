@@ -1,10 +1,10 @@
-import os
 import json
 
 from fastapi import Response
 from fastapi_pagination import Page, paginate
 from metafox_shared.constants.string_constants import *
 from metafox_api.controllers.base_controller import BaseController
+from metafox_shared.config import Config
 from metafox_shared.constants.api_constants import *
 from metafox_shared.dal.idatastore import IDataStore
 
@@ -69,7 +69,7 @@ class GeneralController(BaseController):
             is_ready = self.celery.AsyncResult(task_id).ready()
             
             if is_ready:
-                if os.getenv("DB_TYPE", "mongo") == "redis":
+                if Config.DB_TYPE == "redis":
                     self.data_store.delete(CELERY_METAS_KEY_PREFIX + task_id, self.collection_task_meta)
                 else:
                     self.data_store.delete(task_id, self.collection_task_meta)
@@ -123,7 +123,7 @@ class GeneralController(BaseController):
                 media_type="text/plain"
             )
         
-        if(os.getenv("DB_TYPE", "mongo") == "redis"):
+        if Config.DB_TYPE == "redis":
             self.data_store.delete(CELERY_METAS_KEY_PREFIX + task_id, self.collection_task_meta)
         else:
             self.data_store.delete(task_id, self.collection_task_meta)

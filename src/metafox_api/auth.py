@@ -1,27 +1,23 @@
-import os
-
 from fastapi import Depends, HTTPException, Security, status
 from fastapi.security import OAuth2AuthorizationCodeBearer
 from keycloak import KeycloakOpenID
-from dotenv import load_dotenv
 
 from metafox_api.models.user import User
+from metafox_shared.config import Config
 from metafox_shared.constants.string_constants import *
 
-load_dotenv()
-
 keycloak_openid = KeycloakOpenID(
-    server_url=os.getenv("KEYCLOAK_SERVER_URL", ""),
-    client_id=os.getenv("KEYCLOAK_CLIENT_ID", ""),
-    realm_name=os.getenv("KEYCLOAK_REALM_NAME", ""),
-    client_secret_key=os.getenv("KEYCLOAK_CLIENT_SECRET", ""),
+    server_url=Config.KEYCLOAK_SERVER_URL,
+    client_id=Config.KEYCLOAK_CLIENT_ID,
+    realm_name=Config.KEYCLOAK_REALM_NAME,
+    client_secret_key=Config.KEYCLOAK_CLIENT_SECRET,
     verify=True
 )
 
 oauth2_scheme = OAuth2AuthorizationCodeBearer(
-    authorizationUrl=os.getenv("KEYCLOAK_AUTHORIZATION_URL", ""),
-    tokenUrl=os.getenv("KEYCLORAK_TOKEN_URL", ""),
-    refreshUrl=os.getenv("KEYCLOAK_REFRESH_URL", "")
+    authorizationUrl=Config.KEYCLOAK_AUTHORIZATION_URL,
+    tokenUrl=Config.KEYCLOAK_TOKEN_URL,
+    refreshUrl=Config.KEYCLOAK_REFRESH_URL
 )
 
 async def get_idp_public_key():

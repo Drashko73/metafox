@@ -14,10 +14,11 @@ from metafox_shared.constants.string_constants import *
 from metafox_shared.constants.api_constants import *
 from metafox_shared.utilis import get_current_date
 from metafox_worker.dependencies import get_data_store
+from metafox_shared.config import Config
 
 stop_event = threading.Event()
 logs_dictionary = {}
-collection_task_info = os.getenv("MONGO_COLLECTION_TASK_INFO", "automl_job_status")
+collection_task_info = Config.MONGO_TASKINFO_COLLECTION
 
 @task_received.connect
 def task_received_handler(sender, request, **kwargs):

@@ -1,11 +1,10 @@
-import os
 from datetime import datetime
-from dotenv import load_dotenv
 
 from pymongo import MongoClient as PyMongoClient
 from pymongo.collection import Collection
 from pymongo.database import Database
 from metafox_shared.dal.idatastore import IDataStore
+from metafox_shared.config import Config
 
 class MongoClient(IDataStore):
     """
@@ -31,11 +30,9 @@ class MongoClient(IDataStore):
         __get_collection(collection_name: str) -> Collection
             Retrieves the specified collection from the database.
     """
-    def __init__(self) -> None:
-        load_dotenv()
-        
-        self.client: PyMongoClient = PyMongoClient(os.getenv("MONGO_URI", "mongodb://localhost:27017/"))
-        self.db: Database = self.client.get_database(os.getenv("MONGO_DB", "metafox"))
+    def __init__(self) -> None:        
+        self.client: PyMongoClient = PyMongoClient(Config.MONGO_URI)
+        self.db: Database = self.client.get_database(Config.MONGO_DATABASE)
         
         print("MongoDB connection established.")
     

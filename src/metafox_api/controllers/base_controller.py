@@ -1,9 +1,8 @@
-import os
-from dotenv import load_dotenv
 from celery import Celery
 from metafox_shared.constants.api_constants import CELERY_KEY_PREFIX
 from metafox_shared.constants.string_constants import TASK_ID
 from metafox_shared.dal.idatastore import IDataStore
+from metafox_shared.config import Config
 
 class BaseController:
     """
@@ -16,14 +15,13 @@ class BaseController:
         Args:
             data_store (IDataStore): Data store object.
         """
-        load_dotenv()
         
         self.data_store = data_store
         self.celery = Celery()
         self.celery.config_from_object('metafox_api.celeryconfig')
-        self.collection_task_meta = os.getenv('MONGO_COLLECTION_TASK_META', '*')
-        self.collection_automl_job_details = os.getenv('MONGO_COLLECTION_AUTOML_JOB_DETAILS', '*')
-        self.collection_task_info = os.getenv('MONGO_COLLECTION_TASK_INFO', '*')
+        self.collection_task_meta = Config.MONGO_TASKMETA_COLLECTION
+        self.collection_automl_job_details = Config.MONGO_AUTOMLJOBDETAILS_COLLECTION
+        self.collection_task_info = Config.MONGO_TASKINFO_COLLECTION
         
     def _get_task_id(self, automl_job_id: str) -> str:
         """

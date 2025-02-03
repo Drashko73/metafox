@@ -1,43 +1,22 @@
-import os
-from dotenv import load_dotenv
+from metafox_shared.config import Config
 
-from metafox_shared.constants.string_constants import *
+broker_url = Config.CELERY_BROKER_URL
 
-# Load environment variables
-load_dotenv()
-
-# Broker settings
-broker_url = os.getenv(
-    key=BROKER_URL_CAPITALIZED,
-    default='pyamqp://guest@localhost:5672//'
-)
-
-# Backend settings
-result_backend = os.getenv(
-    key=RESULT_BACKEND_CAPITALIZED,
-    default='redis://localhost:6379/0'
-)
+result_backend = Config.CELERY_RESULT_BACKEND
 
 mongodb_backend_settings = {
-    'database': os.getenv("MONGO_DB", "metafox"),
-    'taskmeta_collection': os.getenv("MONGO_COLLECTION_TASK_META", "taskmeta")
+    'database': Config.MONGO_DATABASE,
+    'taskmeta_collection': Config.MONGO_TASKMETA_COLLECTION
 }
 
-# List of modules every worker should import
 imports = [
     'metafox_worker.tasks.start_training'
 ]
 
-# Task settings
 task_serializer = 'json'
 
-# Task result settings
 result_serializer = 'json'
 
 result_expires = None
 
-# Set the number of concurrent tasks a worker can execute
-worker_concurrency = int(os.getenv(
-    key=WORKER_CONCURRENCY_CAPITALIZED,
-    default=os.cpu_count() # Default to the number of CPUs
-))
+worker_concurrency = Config.CELERY_WORKER_CONCURRENCY

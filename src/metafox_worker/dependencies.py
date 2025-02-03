@@ -1,8 +1,7 @@
-import os
-
 from metafox_shared.dal.idatastore import IDataStore
 from metafox_shared.dal.mongo.mongo_client import MongoClient
 from metafox_shared.dal.redis.redis_client import RedisClient
+from metafox_shared.config import Config
 
 mongo_client_instance = None
 redis_client_instance = None
@@ -25,7 +24,7 @@ def get_data_store() -> IDataStore:
     if db_client_instance is not None:
         return db_client_instance
     
-    db_type = os.getenv("DB_TYPE", "mongo")
+    db_type = Config.DB_TYPE
     
     if db_type == "redis":
         db_client_instance = _get_redis_client()
