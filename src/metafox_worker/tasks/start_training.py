@@ -13,7 +13,7 @@ from metafox_shared.constants.worker_constants import *
 from metafox_shared.constants.string_constants import *
 from metafox_shared.constants.api_constants import *
 from metafox_shared.utilis import get_current_date
-from metafox_worker.dependencies import get_mongo_client
+from metafox_worker.dependencies import get_data_store
 
 stop_event = threading.Event()
 logs_dictionary = {}
@@ -33,13 +33,13 @@ def task_received_handler(sender, request, **kwargs):
     hostname = request.hostname
     key = CELERY_KEY_PREFIX + request.args[0][ID]
     
-    mongo_client = get_mongo_client()
-    celery_task = eval(mongo_client.get(key, collection_task_info))
+    db_client = get_data_store()
+    celery_task = eval(db_client.get(key, collection_task_info))
     
     celery_task[TIMESTAMP_RECEIVED] = date_received
     celery_task[HOSTNAME] = hostname
     
-    mongo_client.update(key, celery_task.__str__(), collection_task_info)
+    db_client.update(key, celery_task.__str__(), collection_task_info)
     
 @task_prerun.connect
 def task_prerun_handler(sender, task_id, task, **kwargs):
@@ -55,11 +55,11 @@ def task_prerun_handler(sender, task_id, task, **kwargs):
     if 'args' in kwargs:
         key = CELERY_KEY_PREFIX + kwargs['args'][0][ID]
         
-        mongo_client = get_mongo_client()
-        celery_task = eval(mongo_client.get(key, collection_task_info))
+        db_client = get_data_store()
+        celery_task = eval(db_client.get(key, collection_task_info))
         celery_task[TIMESTAMP_STARTED] = date_started
         
-        mongo_client.update(key, celery_task.__str__(), collection_task_info)
+        db_client.update(key, celery_task.__str__(), collection_task_info)
     
 @task_postrun.connect
 def task_postrun_handler(sender, task_id, task, retval, state, **kwargs):
@@ -68,12 +68,12 @@ def task_postrun_handler(sender, task_id, task, retval, state, **kwargs):
     if 'args' in kwargs:
         key = CELERY_KEY_PREFIX + kwargs['args'][0][ID]
         
-        mongo_client = get_mongo_client()
-        celery_task = eval(mongo_client.get(key, collection_task_info))
+        db_client = get_data_store()
+        celery_task = eval(db_client.get(key, collection_task_info))
         celery_task[TIMESTAMP_COMPLETED] = date_finished
         celery_task[FINISHED_STATUS] = state
         
-        mongo_client.update(key, celery_task.__str__(), collection_task_info)
+        db_client.update(key, celery_task.__str__(), collection_task_info)
 
 def observe_logs(task: Task, job_id: str, task_id: str) -> None:
     log_file = "metafox_worker/logs/" + job_id + ".log"

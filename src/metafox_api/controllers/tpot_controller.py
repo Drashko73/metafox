@@ -10,7 +10,7 @@ from metafox_shared.constants.string_constants import *
 from metafox_api.models.tpot_job import TPOTAutoMLJob
 from metafox_api.controllers.base_controller import BaseController
 from metafox_api.models.celery_task import CeleryTaskInfo
-from metafox_shared.dal.mongo.mongo_client import MongoClient
+from metafox_shared.dal.idatastore import IDataStore
 from metafox_shared.utilis import get_current_date
 
 class TPOTController(BaseController):
@@ -20,7 +20,7 @@ class TPOTController(BaseController):
         BaseController (_type_): Base controller class.
     """
     
-    def __init__(self, data_store: MongoClient) -> None:
+    def __init__(self, data_store: IDataStore) -> None:
         """
         Initialize the TpotController with the given data store.
 

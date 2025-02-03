@@ -1,24 +1,29 @@
-name: MetaFOX
-
 services:
   rabbitmq:
     image: rabbitmq:management
     container_name: rabbitmq
     ports:
-      - "15671:15671"
       - "15672:15672"
-      - "15691:15691"
-      - "15692:15692"
-      - "25672:25672"
-      - "4369:4369"
-      - "5671:5671"
-      - "5672:5672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - metafox_network
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    volumes:
+      - redis_data:/data/db_redis
+    networks:
+      - metafox_network
 
   mongo:
     image: mongo:latest
     container_name: mongo
-    ports:
-      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db_mongo
+    networks:
+      - metafox_network
 
   api:
     build:
@@ -26,13 +31,8 @@ services:
       dockerfile: Dockerfile
     container_name: api
     environment:
-        API_VERSION: 1.0.0
-        API_HOST: 0.0.0.0
-        API_PORT: 8000
         BROKER_URL: pyamqp://rabbitmq:5672//
-        RESULT_BACKEND: mongodb://mongo:27017/
-        TASK_SERIALIZER: json
-        RESULT_SERIALIZER: json
+        RESULT_BACKEND: redis://redis:6379/0
         WORKER_CONCURRENCY: 1
         KEYCLOAK_SERVER_URL:
         KEYCLOAK_CLIENT_ID:
@@ -47,19 +47,24 @@ services:
         API_ALLOW_CREDENTIALS: "True"
         API_ALLOW_METHODS: "*"
         API_ALLOW_HEADERS: "*"
-        RESULT_EXPIRES: 0
         MONGO_DB: metafox
         MONGO_URI: mongodb://mongo:27017/
         MONGO_COLLECTION_TASK_META: task_meta
         MONGO_COLLECTION_AUTOML_JOB_DETAILS: automl_job_details
         MONGO_COLLECTION_TASK_INFO: task_info
+        REDIS_HOST: redis
+        REDIS_PORT: 6379
+        REDIS_DB: 0
+        DB_TYPE: redis
     ports:
       - "8000:8000"
     depends_on:
       - rabbitmq
-      - mongo
+      - redis
     volumes:
       - ./src/metafox_shared:/usr/src/metafox_shared
+    networks:
+      - metafox_network
 
   worker:
     build:
@@ -67,22 +72,25 @@ services:
       dockerfile: Dockerfile
     environment:
         BROKER_URL: pyamqp://rabbitmq:5672//
-        RESULT_BACKEND: mongodb://mongo:27017/
-        TASK_SERIALIZER: json
-        RESULT_SERIALIZER: json
+        RESULT_BACKEND: redis://redis:6379/0
         WORKER_CONCURRENCY: 1
-        RESULT_EXPIRES: 0
         MONGO_DB: metafox
         MONGO_URI: mongodb://mongo:27017/
         MONGO_COLLECTION_TASK_META: task_meta
         MONGO_COLLECTION_AUTOML_JOB_DETAILS: automl_job_details
         MONGO_COLLECTION_TASK_INFO: task_info
+        REDIS_HOST: redis
+        REDIS_PORT: 6379
+        REDIS_DB: 0
+        DB_TYPE: redis
     depends_on:
       - api
       - rabbitmq
-      - mongo
+      - redis
     volumes:
       - ./src/metafox_shared:/usr/src/metafox_shared
+    networks:
+      - metafox_network
     deploy:
       replicas: 4
 
@@ -91,13 +99,28 @@ services:
     container_name: flower
     environment:
         BROKER_URL: pyamqp://rabbitmq:5672//
-        RESULT_BACKEND: mongodb://mongo:27017/
+        RESULT_BACKEND: redis://redis:6379/0
         FLOWER_PERSISTENT: True
         FLOWER_STATE_SAVE_INTERVAL: 10000
         FLOWER_DB: flower_db
+        FLOWER_BASIC_AUTH:
     ports:
       - "5555:5555"
     depends_on:
       - api
       - rabbitmq
-      - mongo
+      - redis
+    volumes:
+      - flower_data:/data/flower
+    networks:
+      - metafox_network
+
+volumes:
+  rabbitmq_data:
+  redis_data:
+  mongo_data:
+  flower_data:
+
+networks:
+  metafox_network:
+    driver: bridge

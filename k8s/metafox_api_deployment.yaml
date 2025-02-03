@@ -19,28 +19,10 @@ spec:
         ports:
         - containerPort: 8000
         env:
-        - name: API_NAME
-          value: "MetaFOX"
-        - name: API_VERSION
-          value: "1.0.0"
-        - name: API_HOST
-          value: "0.0.0.0"
-        - name: API_PORT
-          value: "8000"
-        - name: API_PREFIX
-          value: "/metafox"
-        - name: API_DOCS_URL
-          value: "/metafox/docs"
-        - name: API_REDOC_URL
-          value: "/metafox/redoc"
         - name: BROKER_URL
           value: "pyamqp://rabbitmq:5672//"
         - name: RESULT_BACKEND
           value: "redis://redis:6379/0"
-        - name: TASK_SERIALIZER
-          value: "json"
-        - name: RESULT_SERIALIZER
-          value: "json"
         - name: WORKER_CONCURRENCY
           value: "1"
         - name: REDIS_HOST
@@ -48,8 +30,6 @@ spec:
         - name: REDIS_PORT
           value: "6379"
         - name: REDIS_DB
-          value: "0"
-        - name: RESULT_EXPIRES
           value: "0"
         - name: API_AUTH_ENABLED
           value: "False"

@@ -29,21 +29,12 @@ imports = [
 ]
 
 # Task settings
-task_serializer = os.getenv(
-    key=TASK_SERIALIZER_CAPITALIZED,
-    default='json'
-)
+task_serializer = 'json'
 
 # Task result settings
-result_serializer = os.getenv(
-    key=RESULT_SERIALIZER_CAPITALIZED,
-    default='json'
-)
+result_serializer = 'json'
 
-result_expires = int(os.getenv(
-    key='RESULT_EXPIRES',
-    default=0 # Never expire
-))
+result_expires = None
 
 # Set the number of concurrent tasks a worker can execute
 worker_concurrency = int(os.getenv(
