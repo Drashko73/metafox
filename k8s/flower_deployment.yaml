@@ -20,12 +20,14 @@ spec:
         - name: BROKER_URL
           value: "pyamqp://rabbitmq:5672//"
         - name: RESULT_BACKEND
-          value: "redis://redis:6379/0"
+          value: "mongodb://mongo:27017/"
         - name: FLOWER_PERSISTENT
           value: "True"
         - name: FLOWER_STATE_SAVE_INTERVAL
           value: "10000"
         - name: FLOWER_DB
           value: "flower_db"
+        - name: FLOWER_BASIC_AUTH
+          value: ""
         ports:
         - containerPort: 5555
