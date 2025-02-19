@@ -100,7 +100,7 @@ services:
     environment:
         BROKER_URL: pyamqp://rabbitmq:5672//
         RESULT_BACKEND: redis://redis:6379/0
-        FLOWER_PERSISTENT: True
+        FLOWER_PERSISTENT: "True"
         FLOWER_STATE_SAVE_INTERVAL: 10000
         FLOWER_DB: flower_db
         FLOWER_BASIC_AUTH:
