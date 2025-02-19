@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: metafox-worker
-        image: drashkko/metafox-worker:v2.1.0
+        image: drashkko/metafox-worker:v2.2.0
         env:
         - name: BROKER_URL
           value: "pyamqp://rabbitmq:5672//"
@@ -43,11 +43,3 @@ spec:
           value: "redis"
         - name: PYTHONPATH
           value: "/usr/src"
-        volumeMounts:
-        - name: metafox-shared
-          mountPath: /usr/src/metafox_shared
-      volumes:
-      - name: metafox-shared
-        hostPath:
-          path: /mnt/metafox_shared
-          type: Directory

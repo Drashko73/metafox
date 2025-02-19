@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: metafox-api
-        image: drashkko/metafox-api:v2.1.0
+        image: drashkko/metafox-api:v2.2.0
         ports:
         - containerPort: 8000
         env:
@@ -71,11 +71,3 @@ spec:
           value: "redis"
         - name: PYTHONPATH
           value: "/usr/src"
-        volumeMounts:
-        - name: metafox-shared
-          mountPath: /usr/src/metafox_shared
-      volumes:
-      - name: metafox-shared
-        hostPath:
-          path: /mnt/metafox_shared
-          type: Directory
