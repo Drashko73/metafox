@@ -26,7 +26,7 @@ services:
       - metafox_network
 
   api:
-    image: drashkko/metafox-api:v2.1.0
+    image: drashkko/metafox-api:v2.2.0
     container_name: api
     environment:
       BROKER_URL: pyamqp://rabbitmq:5672//
@@ -59,13 +59,11 @@ services:
     depends_on:
       - rabbitmq
       - redis
-    volumes:
-      - ./src/metafox_shared:/usr/src/metafox_shared
     networks:
       - metafox_network
   
   worker:
-    image: drashkko/metafox-worker:v2.1.0
+    image: drashkko/metafox-worker:v2.2.0
     environment:
       BROKER_URL: pyamqp://rabbitmq:5672//
       RESULT_BACKEND: redis://redis:6379/0
@@ -83,8 +81,6 @@ services:
       - api
       - rabbitmq
       - redis
-    volumes:
-      - ./src/metafox_shared:/usr/src/metafox_shared
     networks:
       - metafox_network
     deploy:

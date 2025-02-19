@@ -6,3 +6,6 @@ checkpoints/*
 
 # Prevent copying of the exported_models directory
 exported_models/*
+
+# Prevent copying of the __pycache__ directory
+__pycache__/

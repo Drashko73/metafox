@@ -27,8 +27,8 @@ services:
 
   api:
     build:
-      context: ./src/metafox_api
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: src/metafox_api/Dockerfile
     container_name: api
     environment:
         BROKER_URL: pyamqp://rabbitmq:5672//
@@ -61,15 +61,13 @@ services:
     depends_on:
       - rabbitmq
       - redis
-    volumes:
-      - ./src/metafox_shared:/usr/src/metafox_shared
     networks:
       - metafox_network
 
   worker:
     build:
-      context: ./src/metafox_worker
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: src/metafox_worker/Dockerfile
     environment:
         BROKER_URL: pyamqp://rabbitmq:5672//
         RESULT_BACKEND: redis://redis:6379/0
@@ -87,8 +85,6 @@ services:
       - api
       - rabbitmq
       - redis
-    volumes:
-      - ./src/metafox_shared:/usr/src/metafox_shared
     networks:
       - metafox_network
     deploy:
