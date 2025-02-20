@@ -27,6 +27,7 @@ class AutoMLJob(BaseModel, ABC):
     
     # Field validators
     @field_validator('problem_type')
+    @classmethod
     def check_problem_type(cls, value):
         if value not in ['classification', 'regression']:
             raise ValueError('Problem type must be either classification or regression')

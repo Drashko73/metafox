@@ -1,4 +1,4 @@
-from pydantic import Field, field_validator
+from pydantic import Field, ValidationInfo, field_validator
 from typing import Union, Dict, Annotated, Optional
 from metafox_api.models.automl_job import AutoMLJob
 from metafox_shared.constants.string_constants import *
@@ -91,9 +91,10 @@ class TPOTAutoMLJob(AutoMLJob):
     
     # Field validators
     @field_validator('config_dict')
-    def check_config_dict(cls, value):
+    @classmethod
+    def check_config_dict(cls, value: str, info: ValidationInfo):
         if value is None:
-            return value
+            return cls.model_fields[info.field_name].default
         
         if value not in AVAILABLE_CONFIG_DICTS and isinstance(value, str):
             return value
@@ -104,24 +105,29 @@ class TPOTAutoMLJob(AutoMLJob):
         return value
     
     @field_validator('generations', 'population_size', "offspring_size", 'cv', 'max_time_mins', 'max_eval_time_mins', 'random_state', 'early_stop')
-    def check_greater_than_zero_values(cls, value):
+    @classmethod
+    def check_greater_than_zero_values(cls, value: str, info: ValidationInfo):
         if value is None:
-            return value
+            return cls.model_fields[info.field_name].default
         
-        if isinstance(value, int) and value <= 0:
+        if not isinstance(value, int):
+            raise ValueError('Value must be an integer')
+        
+        if value <= 0:
             raise ValueError('Value must be greater than zero')
         
         return value
     
     @field_validator('mutation_rate', 'crossover_rate', 'subsample')
-    def check_interval_zero_one(cls, value):
+    @classmethod
+    def check_interval_zero_one(cls, value: str, info: ValidationInfo):
         if value is None:
-            return value
+            return cls.model_fields[info.field_name].default
         
-        if isinstance(value, float):
-            if value < 0 or value > 1:
-                raise ValueError("Value must be inside [0.0, 1.0] interval")
-        else:
-            raise ValueError("Value must be a floating point value")
+        if not isinstance(value, float):
+            raise ValueError('Value must be a floating point value')
+        
+        if value < 0 or value > 1:
+            raise ValueError('Value must be inside [0.0, 1.0] interval')
         
         return value
