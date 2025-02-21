@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: metafox-worker
-        image: drashkko/metafox-worker:v2.2.0
+        image: drashkko/metafox-worker:latest
         env:
         - name: BROKER_URL
           value: "pyamqp://rabbitmq:5672//"

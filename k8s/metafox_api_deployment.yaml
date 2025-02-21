@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: metafox-api
-        image: drashkko/metafox-api:v2.2.0
+        image: drashkko/metafox-api:latest
         ports:
         - containerPort: 8000
         env:
