@@ -25,6 +25,21 @@ async def create_automl_job(
 ) -> Response:
     return controller.create_automl_job(body)
 
+@router.put(
+    path="/automl/job/{automl_job_id}/update",
+    tags=["tpot-automl-job-configuration"],
+    summary="Put method for updating an AutoML job",
+    description="Update an AutoML job by providing a complete new configuration. This will completely overwrite the existing configuration.",
+    deprecated=False,
+    response_description="Id of the AutoML job with a message and job details"
+)
+async def update_automl_job(
+    body: TPOTAutoMLJob,
+    automl_job_id: str = Path(..., description="AutoML job Id"),
+    controller: TPOTController = Depends(get_tpot_controller)
+) -> Response:
+    return controller.update_automl_job(automl_job_id, body)
+
 @router.get(
     path="/automl/job/{automl_job_id}/details",
     tags=["tpot-automl-job-configuration"],

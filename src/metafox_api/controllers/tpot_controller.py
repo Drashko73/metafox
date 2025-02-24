@@ -77,6 +77,74 @@ class TPOTController(BaseController):
             media_type="application/json"
         )
     
+    def update_automl_job(self, automl_job_id: str, body: TPOTAutoMLJob) -> Response:
+        """
+        Updates the details of an existing AutoML job.
+        Args:
+            automl_job_id (str): The ID of the AutoML job to update.
+            body (TPOTAutoMLJob): The updated details of the AutoML job.
+        Returns:
+            Response: A response object indicating the result of the operation.
+                - 404: If the AutoML job details are not found.
+                - 400: If the AutoML job has already been started.
+                - 200: If the AutoML job details are successfully updated.
+        """
+        
+        if automl_job_id.startswith(CELERY_KEY_PREFIX) or automl_job_id.startswith(CELERY_METAS_KEY_PREFIX):
+            return Response(
+                status_code=400,
+                content="Invalid AutoML job id format.",
+                media_type="text/plain"
+            )
+        
+        # Check if there is an existing job with the given ID
+        previous_job_details = self._get_automl_job_details(automl_job_id)
+        
+        if previous_job_details is None:
+            return Response(
+                status_code=404, 
+                content="AutoML job not found.", 
+                media_type="text/plain"
+            )
+        
+        # Check if the job has already been started or completed
+        task_id = self._get_task_id(automl_job_id)
+        
+        if task_id is None:
+            return Response(
+                status_code=404, 
+                content="Could not find required data for the AutoML job.", 
+                media_type="text/plain"
+            )
+        
+        if task_id != NOT_STARTED:
+            return Response(
+                status_code=400, 
+                content="AutoML job already started.", 
+                media_type="text/plain"
+            )
+            
+        updated_job_details = body.__str__()
+        
+        try:
+            self.data_store.update(automl_job_id, updated_job_details, self.collection_automl_job_details)
+        except Exception as e:
+            return Response(
+                status_code=500, 
+                content="Error saving AutoML job details.", 
+                media_type="text/plain"
+            )
+        
+        return Response(
+            status_code=200,
+            content=json.dumps({
+                "message": "AutoML job updated.",
+                "automl_job_id": automl_job_id,
+                "details": updated_job_details
+            }), 
+            media_type="application/json"
+        )
+    
     def start_automl_job(self, automl_job_id: str) -> Response:
         """
         Starts an AutoML job with the given job ID.
@@ -248,7 +316,7 @@ class TPOTController(BaseController):
         if automl_job_id.startswith(CELERY_KEY_PREFIX) or automl_job_id.startswith(CELERY_METAS_KEY_PREFIX):
             return Response(
                 status_code=400,
-                content="Invalid AutoML job id.",
+                content="Invalid AutoML job id format.",
                 media_type="text/plain"
             )
         
