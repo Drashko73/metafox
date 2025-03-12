@@ -175,3 +175,6 @@ bento_models/
 
 # Idea directory
 .idea/
+
+# Secrets directory
+secrets/

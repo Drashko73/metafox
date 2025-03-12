@@ -21,10 +21,10 @@ def custom_openapi(app: FastAPI):
                 "url": f"http://147.91.204.120:8000",
                 "description": "CERAMO Server"
             },
-            {
-                "url": f"http://147.91.204.112:8000",
-                "description": "CERAMO Raspberry Pi Server"
-            }
+            # {
+            #     "url": f"http://147.91.204.112:8000",
+            #     "description": "CERAMO Raspberry Pi Server"
+            # }
         ],
         routes=app.routes,
         contact={
