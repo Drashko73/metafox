@@ -1,0 +1,85 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flower-backend-deployment
+  namespace: default
+  labels:
+    app: flower-backend
+spec:
+  replicas: 1
+  progressDeadlineSeconds: 600
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: flower-backend
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+  template:
+    metadata:
+      labels:
+        app: flower-backend
+    spec:
+      affinity: {}
+      containers:
+      - name: flower-backend
+        image: mher/flower
+        imagePullPolicy: Always
+        env:
+          - name: BROKER_URL
+            value: pyamqp://ceramo:metafox_2025@rabbitmq-backend-service.default.svc.cluster.local:5672//
+          - name: RESULT_BACKEND
+            value: redis://:metafox_2025@redis-backend-service.default.svc.cluster.local:6379/0
+          - name: FLOWER_PERSISTENT
+            value: "True"
+          - name: FLOWER_STATE_SAVE_INTERVAL
+            value: "10000"
+          - name: FLOWER_DB
+            value: flower_db
+          - name: FLOWER_BASIC_AUTH
+            value: "ceramo:metafox_2025"
+        ports:
+        - containerPort: 5555
+          protocol: TCP
+          name: flower-port
+        resources:
+          limits:
+            cpu: 100m
+            memory: 128Mi
+          requests:
+            cpu: 100m
+            memory: 128Mi
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /var/lib/flower/data
+          name: flower-volume
+          subPath: "flower_data"
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - name: flower-volume
+        persistentVolumeClaim:
+          claimName: flower-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: flower-backend-service
+  namespace: default
+  labels:
+    app: flower-backend
+spec:
+  selector:
+    app: flower-backend
+  ports:
+  - port: 5555
+    targetPort: flower-port
+    nodePort: 30510
+    protocol: TCP
+  type: NodePort
