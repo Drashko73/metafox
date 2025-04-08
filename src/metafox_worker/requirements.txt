@@ -1,0 +1,8 @@
+celery==5.4.0
+pandas==2.2.3
+redis==5.2.1
+tpot==0.12.2
+scikit-learn==1.6.1
+python-dotenv==1.0.1
+flower==2.0.1
+pymongo==4.10.1

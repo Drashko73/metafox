@@ -1,0 +1,78 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongo-backend-deployment
+  namespace: default
+  labels:
+    app: mongo-backend
+spec:
+  replicas: 1
+  progressDeadlineSeconds: 600
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: mongo-backend
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+  template:
+    metadata:
+      labels:
+        app: mongo-backend
+    spec:
+      affinity: {}
+      containers:
+      - name: mongo-backend
+        image: mongo:latest
+        imagePullPolicy: Always
+        args: ["--bind_ip_all"] # Allow access from outside the container
+        env:
+         - name: MONGO_INITDB_ROOT_USERNAME
+           value: ceramo
+         - name: MONGO_INITDB_ROOT_PASSWORD
+           value: metafox_2025
+        ports:
+        - containerPort: 27017
+          protocol: TCP
+          name: mongo-port
+        resources:
+          limits:
+            cpu: 256m
+            memory: 1Gi
+          requests:
+            cpu: 256m
+            memory: 512Mi
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /var/lib/mongo/data
+          name: mongo-volume
+          subPath: "mongo_data"
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+      volumes:
+        - name: mongo-volume
+          persistentVolumeClaim:
+            claimName: mongo-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo-backend-service
+  namespace: default
+  labels:
+    app: mongo-backend
+spec:
+  selector:
+    app: mongo-backend
+  ports:
+    - protocol: TCP
+      port: 27017
+      targetPort: mongo-port
+      nodePort: 30501
+  type: NodePort

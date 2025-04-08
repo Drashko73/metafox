@@ -161,5 +161,20 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
-# Data folder
-data/
+# Checkpoints directory
+checkpoints/
+
+# Logs directory
+logs/
+
+# Exported models directory
+exported_models/
+
+# Bento models directory
+bento_models/
+
+# Idea directory
+.idea/
+
+# Secrets directory
+secrets/
