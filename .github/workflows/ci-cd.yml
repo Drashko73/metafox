@@ -39,12 +39,12 @@ jobs:
         run: |
           if [[ $GITHUB_REF == refs/tags/* ]]; then
             TAG=${GITHUB_REF#refs/tags/v}
-          elif [[ ${{ github.event.inputs.tag }} ]]; then
+          elif [[ "${{ github.event.inputs.tag }}" != "" ]]; then
             TAG=${{ github.event.inputs.tag }}
           else
             TAG=latest
           fi
-          echo "::set-output name=tag::$TAG"
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
 
       - name: Build and push MetaFOX API
         uses: docker/build-push-action@v4
@@ -78,7 +78,7 @@ jobs:
         run: |
           if [[ $GITHUB_REF == refs/tags/* ]]; then
             TAG=${GITHUB_REF#refs/tags/v}
-          elif [[ ${{ github.event.inputs.tag }} ]]; then
+          elif [[ "${{ github.event.inputs.tag }}" != "" ]]; then
             TAG=${{ github.event.inputs.tag }}
           else
             TAG=latest
