@@ -1,0 +1,110 @@
+name: MetaFOX CI/CD
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Image tag'
+        required: true
+        default: 'latest'
+
+env:
+  DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+  API_IMAGE_NAME: ${{ secrets.DOCKER_HUB_USERNAME }}/metafox-api
+  WORKER_IMAGE_NAME: ${{ secrets.DOCKER_HUB_USERNAME }}/metafox-worker
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_TOKEN }}
+      
+      - name: Extract tag
+        id: tag
+        run: |
+          if [[ $GITHUB_REF == refs/tags/* ]]; then
+            TAG=${GITHUB_REF#refs/tags/v}
+          elif [[ ${{ github.event.inputs.tag }} ]]; then
+            TAG=${{ github.event.inputs.tag }}
+          else
+            TAG=latest
+          fi
+          echo "::set-output name=tag::$TAG"
+
+      - name: Build and push MetaFOX API
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: src/metafox_api/Dockerfile
+          push: true
+          tags: |
+            ${{ env.API_IMAGE_NAME }}:${{ steps.tag.outputs.tag }}
+            ${{ env.API_IMAGE_NAME }}:latest
+
+      - name: Build and push MetaFOX Worker
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: src/metafox_worker/Dockerfile
+          push: true
+          tags: |
+            ${{ env.WORKER_IMAGE_NAME }}:${{ steps.tag.outputs.tag }}
+            ${{ env.WORKER_IMAGE_NAME }}:latest
+
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Extract tag
+        id: tag
+        run: |
+          if [[ $GITHUB_REF == refs/tags/* ]]; then
+            TAG=${GITHUB_REF#refs/tags/v}
+          elif [[ ${{ github.event.inputs.tag }} ]]; then
+            TAG=${{ github.event.inputs.tag }}
+          else
+            TAG=latest
+          fi
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+      
+      - name: Install sshpass
+        run: sudo apt-get install -y sshpass
+      
+      - name: Add server to known hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
+      
+      - name: Deploy to Kubernetes via SSH with password
+        env:
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+          SERVER_IP: ${{ secrets.SERVER_IP }}
+          SSH_PASSWORD: ${{ secrets.SSH_PASSWORD }}
+          API_IMAGE: ${{ env.API_IMAGE_NAME }}:${{ steps.tag.outputs.tag }}
+          WORKER_IMAGE: ${{ env.WORKER_IMAGE_NAME }}:${{ steps.tag.outputs.tag }}
+        run: |
+          # Execute kubectl commands via SSH with password
+          sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=accept-new ${SERVER_USER}@${SERVER_IP} "kubectl set image deployment/api-deployment api=${API_IMAGE} --record"
+          sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=accept-new ${SERVER_USER}@${SERVER_IP} "kubectl set image deployment/worker-deployment worker=${WORKER_IMAGE} --record"
+          
+          # Check rollout status via SSH with password
+          sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=accept-new ${SERVER_USER}@${SERVER_IP} "kubectl rollout status deployment/api-deployment"
+          sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=accept-new ${SERVER_USER}@${SERVER_IP} "kubectl rollout status deployment/worker-deployment"
