@@ -1,3 +1,6 @@
+# Disclaimer ⚠️
+The most recent development of the MetaFOX component is hosted on Eclipse Research Lab on the following [link](https://gitlab.eclipse.org/eclipse-research-labs/nemo-project/opencall-1/metafox)
+
 # MetaFOX
 
 MetaFOX is an advanced automated machine learning (AutoML) component designed to simplify the initial model creation within NEMO META-OS. It automates the process of model selection, feature engineering, and hyperparameter tuning, making it easier to develop high-quality models for federated learning (FL) and transfer learning (TL).
